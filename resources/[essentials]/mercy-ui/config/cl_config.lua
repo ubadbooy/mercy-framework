@@ -33,10 +33,9 @@ function GetBoneDistanceFromVehicle(EntityType, BoneName)
     if PeekingEntity ~= nil and DoesEntityExist(PeekingEntity) then
         if GetEntityType(PeekingEntity) == EntityType then
             local Bone = GetEntityBoneIndexByName(PeekingEntity, BoneName)
-        
+
             local BoneCoords = GetWorldPositionOfEntityBone(PeekingEntity, Bone)
-            local PlayerCoords = GetEntityCoords(PlayerPedId())
-        
+            local PlayerCoords = GetEntityCoords(PlayerPedId())        
             return #(BoneCoords - PlayerCoords)
         end
     end
@@ -114,6 +113,34 @@ Config.EyeEntries = {
                 end,
             },
             {
+                Name = 'close_trunk',
+                Label = 'Close Trunk',
+                Icon = 'fas fa-truck-ramp',
+                EventType = 'Client',
+                EventName = 'mercy-vehicles/client/toggle-door-data',
+                EventParams = {
+                    IsMenu = false,
+                    DoorNumber = 5,
+                },
+                Enabled = function(Entity)
+                    return ((GetBoneDistanceFromVehicle(2, "boot") < 1.20) and (GetVehicleDoorAngleRatio(Entity, 5) > 0.0))
+                end,
+            },
+            {
+                Name = 'open_trunk',
+                Label = 'Open Trunk',
+                Icon = 'fas fa-truck-ramp',
+                EventType = 'Client',
+                EventName = 'mercy-vehicles/client/toggle-door-data',
+                EventParams = {
+                    IsMenu = false,
+                    DoorNumber = 5,
+                },
+                Enabled = function(Entity)
+                    return ((GetBoneDistanceFromVehicle(2, "boot") < 1.20) and (GetVehicleDoorAngleRatio(Entity, 5) == 0.0))
+                end,
+            },
+            {
                 Name = 'get_in_trunk',
                 Label = 'Enter Trunk',
                 Icon = 'fas fa-user-secret',
@@ -121,7 +148,7 @@ Config.EyeEntries = {
                 EventName = 'mercy-vehicles/client/get-in-trunk',
                 EventParams = {},
                 Enabled = function(Entity)
-                    return (GetBoneDistanceFromVehicle(2, "trunk") < 1.0 and GetVehicleDoorAngleRatio(Entity, 5) > 0.0)
+                    return ((GetBoneDistanceFromVehicle(2, "boot") < 1.20) and (GetVehicleDoorAngleRatio(Entity, 5) > 0.0))
                 end,
             },
             {

@@ -37,6 +37,32 @@ CREATE TABLE IF NOT EXISTS `hotel_rooms` (
   `Available` int(11) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
+INSERT INTO `hotel_rooms` (`RoomId`, `RoomInfo`, `Available`) VALUES
+	(501, 'Room-501', 1),
+	(502, 'Room-502', 1),
+	(503, 'Room-503', 1),
+	(504, 'Room-504', 1),
+	(505, 'Room-505', 1),
+	(506, 'Room-506', 1),
+	(507, 'Room-507', 1),
+	(508, 'Room-508', 1),
+	(509, 'Room-509', 1),
+	(510, 'Room-510', 1),
+	(511, 'Room-511', 1),
+	(512, 'Room-512', 1),
+	(513, 'Room-513', 1),
+	(514, 'Room-514', 1),
+	(515, 'Room-515', 1),
+	(516, 'Room-516', 1),
+	(517, 'Room-517', 1),
+	(518, 'Room-518', 1),
+	(519, 'Room-519', 1),
+	(520, 'Room-520', 1),
+	(521, 'Room-521', 1),
+	(522, 'Room-522', 1),
+	(523, 'Room-523', 1),
+	(524, 'Room-524', 1);
+
 -- Data exporteren was gedeselecteerd
 
 -- Structuur van  tabel mercy-framework.logs wordt geschreven
@@ -179,7 +205,7 @@ CREATE TABLE IF NOT EXISTS `player_accounts` (
   `Type` varchar(50) DEFAULT NULL,
   `Name` varchar(50) DEFAULT NULL,
   `BankId` varchar(50) DEFAULT NULL,
-  `Balance` bigint(60) DEFAULT NULL,
+  `Balance` bigint(60) DEFAULT 0,
   `Authorized` varchar(500) DEFAULT NULL,
   `Transactions` varchar(60000) DEFAULT '[]',
   `Active` int(11) DEFAULT 1,
@@ -334,10 +360,10 @@ CREATE TABLE IF NOT EXISTS `player_vehicles` (
   `plate` varchar(50) DEFAULT NULL,
   `garage` varchar(50) DEFAULT 'apartment_1',
   `state` varchar(50) DEFAULT 'In',
-  `parts` varchar(300) DEFAULT '{"Transmission":100,"FuelInjectors":100,"Axle":100,"Clutch":100,"Engine":100,"Brakes":100}',
   `mods` text DEFAULT NULL,
   `damage` text DEFAULT '{"Doors":{"1":false,"2":false,"3":false,"4":false,"5":false,"0":false},"Windows":{"1":true,"2":true,"3":true,"4":false,"5":false,"6":true,"7":true,"0":true},"Tyres":{"1":false,"2":false,"3":false,"4":false,"5":false,"0":false}}',
   `metadata` varchar(1000) DEFAULT '{"Engine":1000.0,"Body":1000.0,"Fuel":100.0,"Nitrous":0,"Harness":0}',
+  `parts` varchar(1000) DEFAULT '{"Engine":100.0,"Body":100.0,"Fuel":100.0,"Transmission":100,"FuelInjectors":100,"Axle":100,"Clutch":100,"Brakes":100}',
   `vin` varchar(50) DEFAULT NULL,
   `type` varchar(50) DEFAULT 'Player',
   `impounddata` longtext DEFAULT NULL,

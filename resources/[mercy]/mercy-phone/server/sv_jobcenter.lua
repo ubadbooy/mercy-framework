@@ -15,19 +15,12 @@ Citizen.CreateThread(function()
     end)
 
     CallbackModule.CreateCallback('mercy-phone/server/jobcenter/get-jobs', function(Source, Cb)
-        local FilteredJobs = {}
         local Player = PlayerModule.GetPlayerBySource(Source)
-        local VPN = Player.Functions.GetItemByName("vpn")
-        for JobId, Job in pairs(ServerConfig.Jobs) do
-            if Job["RequiresVPN"] then
-                if VPN ~= nil and VPN.Amount > 0 then
-                    FilteredJobs[JobId] = Job
-                end
-            else
-                FilteredJobs[JobId] = Job
-            end
+        local JobList = {}
+        for JobName, JobData in pairs(ServerConfig.Jobs) do
+            JobList[JobName] = JobData
         end
-        Cb(FilteredJobs)
+        Cb(JobList)
     end)
 
     CallbackModule.CreateCallback('mercy-phone/server/jobcenter/get-groups', function(Source, Cb, Job)
