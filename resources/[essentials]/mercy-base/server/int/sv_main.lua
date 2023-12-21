@@ -116,14 +116,21 @@ AddEventHandler('Modules/server/ready', function()
         end)
 
         CallbackModule.CreateCallback('mercy-base/server/create-vehicle', function(Source, Cb, VehicleName, TargetCoords, Plate)
+            local Tries = 100
             local Model = (type(VehicleName) == "number" and VehicleName or GetHashKey(VehicleName))
             local Coords = {['X'] = TargetCoords['X'], ['Y'] = TargetCoords['Y'], ['Z'] = TargetCoords['Z']}
             local Heading = TargetCoords['Heading']
-            local Vehicle = Citizen.InvokeNative(GetHashKey("CREATE_AUTOMOBILE"), Model, Coords['X'], Coords['Y'], Coords['Z'], Heading);
-            while not DoesEntityExist(Vehicle) do
-                Citizen.Wait(1)
+            local Vehicle = CreateVehicle(Model, Coords['X'], Coords['Y'], Coords['Z'], Heading, true, true)
+            while not DoesEntityExist(Vehicle) and Tries > 0 do
+                Citizen.Wait(100)
+                Tries = Tries - 1
             end
-            if Plate ~= nil then
+            if not DoesEntityExist(Vehicle) then -- Vehicle did not spawn
+                Cb(false)
+                return
+            end
+
+            if Plate and Plate ~= nil then
                 SetVehicleNumberPlateText(Vehicle, Plate)
             end
             Cb(NetworkGetNetworkIdFromEntity(Vehicle))
@@ -194,6 +201,7 @@ AddEventHandler('Modules/server/ready', function()
                 PlayerModule.HasPermission(Source, function(HasPermission)
                     if not HasPermission then
                         TriggerClientEvent('mercy-ui/client/notify', Source, "access-devtools", "Devtools detected..", 'error', 3000)
+                        DropPlayer(Source, "Devtools detected..")
                     end
                 end, "admin")
             end
@@ -252,13 +260,61 @@ AddEventHandler('Modules/server/ready', function()
             local Player = PlayerModule.GetPlayerBySource(Source)
             Player.Functions.RemoveCrypto(Type, Amount)
         end)
+        
+        EventsModule.RegisterServer("mercy-base/server/create-log", function(Source, Log)
+            local Player = PlayerModule.GetPlayerBySource(Source)
+    
+            local Name = Player.PlayerData.Name..' ('..Player.PlayerData.CharInfo.Firstname..' '..Player.PlayerData.CharInfo.Lastname..')'
+
+            if string.sub(Log, -1) == '.' then
+                Log = Log
+            else
+                Log = Log..'.'
+            end
+            DatabaseModule.Insert("INSERT INTO server_logs (cid, name, log) VALUES (?, ?, ?)", {Player.PlayerData.CitizenId, Name, Log}, function(Inserted)
+                if Inserted ~= nil then
+                    print("[SERVER:LOGS]: Inserted server log.")
+                else
+                    print("[SERVER:LOGS]: Failed to insert server log.")
+                end
+            end)
+        end)
+
+        local NoPayCheckBusinesses = {
+            'Burger Shot',
+            'Pizza This',
+            'UwU Café',
+            'Hayes Repairs',
+            'Digital Den',
+            '6STR. Tuner Shop',
+        }
                 
-        EventsModule.RegisterServer("mercy-base/server/receive-salary", function(Source)
+        EventsModule.RegisterServer("mercy-base/server/receive-paycheck", function(Source)
             local Player = PlayerModule.GetPlayerBySource(Source)
             if not Player then return end
-            if exports['mercy-business']:IsEmployedAtBusiness(Source) then return end -- If the player is employed at a business, they will not receive a salary.
-            Player.Functions.SetMetaData('SalaryPayheck', Player.PlayerData.MetaData['SalaryPayheck'] + Player.PlayerData.Job.Salary)
-            -- Player.Functions.Notify('salary-received', 'You have received your paycheck of $'..Player.PlayerData.Job.Salary..'.', 'success', 5000)
+
+            local IsInBusiness = false
+            for k, Name in pairs(NoPayCheckBusinesses) do
+                if exports['mercy-business']:IsPlayerInBusiness(Player, Name) then
+                    IsInBusiness = true 
+                end
+            end
+            if IsInBusiness then return end
+
+            local NewAmount = Player.PlayerData.MetaData['SalaryPayheck'] + Player.PlayerData.Job.Salary
+            Player.Functions.SetMetaData('SalaryPayheck', NewAmount)
+            Player.Functions.Save()
+            TriggerClientEvent('mercy-phone/client/notification', Source, {
+                Id = math.random(11111111, 99999999),
+                Title = "Bank",
+                Message = "You have received your paycheck of $"..Player.PlayerData.Job.Salary.." ($"..Player.PlayerData.MetaData['SalaryPayheck']..")",
+                Icon = "fas fa-dollar-sign",
+                IconBgColor = "#4f5efc",
+                IconColor = "white",
+                Sticky = false,
+                Duration = 5000,
+                Buttons = {},
+            })
         end)
 
         EventsModule.RegisterServer("mercy-base/server/save-position", function(Source, Coords)
@@ -285,6 +341,15 @@ end)
 
 RegisterNetEvent("mercy-base/server/sync-request", function(Native, ServerId, NetId, ...)
    TriggerClientEvent('mercy-base/client/sync-execute', ServerId, Native, NetId, ...)
+end)
+
+RegisterNetEvent("mercy-base/server/set-meta-data", function(Type, Amount)
+    local Source = source
+    local Player = PlayerModule.GetPlayerBySource(Source)
+	if Player then
+        Player.Functions.SetMetaData(Type, Amount)
+        Player.Functions.Save()
+    end
 end)
 
 RegisterNetEvent("mercy-base/server/reduce-player-food-water", function()

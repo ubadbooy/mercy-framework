@@ -5,7 +5,7 @@ Config.SavedDuiData, Config.DuiLinks = {}, {}
 Config.Density = {
     ['Vehicle'] = 0.55,
     ['Parked'] = 0.80,
-    ['Peds'] = 0.55,
+    ['Peds'] = 1.0,
     ['Scenarios'] = 0.55,
 }
 
@@ -24,18 +24,18 @@ Config.DiscordSettings = {
     ['Text'] = 'Mercy Collective',
 }
 
-Config.BlacklistedScenarios = {
-    ['TYPES'] = {
-        "WORLD_VEHICLE_MILITARY_PLANES_SMALL",
-        "WORLD_VEHICLE_MILITARY_PLANES_BIG",
-    },
-    ['GROUPS'] = {
-        2017590552,
-        2141866469,
-        1409640232,
-        GetHashKey('ng_planes'),
-    }
-}
+-- Config.BlacklistedScenarios = {
+--     ['TYPES'] = {
+--         "WORLD_VEHICLE_MILITARY_PLANES_SMALL",
+--         "WORLD_VEHICLE_MILITARY_PLANES_BIG",
+--     },
+--     ['GROUPS'] = {
+--         2017590552,
+--         2141866469,
+--         1409640232,
+--         GetHashKey('ng_planes'),
+--     }
+-- }
 
 Config.BlacklistedEntitys = {
 	-- Vehicles
@@ -84,6 +84,7 @@ Config.BlacklistedEntitys = {
     [GetHashKey('s_m_y_prismuscl_01')] = true,
     [GetHashKey('u_m_y_prisoner_01')] = true,
     [GetHashKey('s_m_y_prisoner_01')] = true,
+	[GetHashKey('s_m_y_swat_01')] = true,
 }
 
 Config.PropList = {
@@ -120,17 +121,17 @@ Config.PropList = {
 		["ZR"] = 0.0,
     	["VertexIndex"] = 0
 	},
-	-- ['Box'] = {
-	-- 	["Model"] = "prop_cs_cardbox_01",
-	-- 	["Bone"] = 57005,
-	-- 	['X'] = 0.05,
-	-- 	['Y'] = 0.1,
-	-- 	['Z'] = -0.3,
-	-- 	['XR'] = 300.0,
-	-- 	['YR'] = 250.0,
-	-- 	['ZR'] = 20.0,
-    -- 	["VertexIndex"] = 0
-	-- },
+	['CardBox'] = {
+		["Model"] = "prop_cs_cardbox_01",
+		["Bone"] = 57005,
+		['X'] = 0.05,
+		['Y'] = 0.1,
+		['Z'] = -0.3,
+		['XR'] = 300.0,
+		['YR'] = 250.0,
+		['ZR'] = 20.0,
+    	["VertexIndex"] = 0
+	},
 	['Drill'] = {
 		["Model"] = "hei_prop_heist_drill",
 		["Bone"] = 57005,
@@ -384,6 +385,28 @@ Config.PropList = {
 		['ZR'] = -10.0,
     	["VertexIndex"] = 0
 	},
+	['Notepad'] = {
+        ['Model'] = 'prop_notepad_01',
+		["Bone"] = 60309,
+		["X"] = 0.0,
+		["Y"] = -0.0,
+		["Z"] = -0.0,
+		["XR"] = 0.0,
+		["YR"] = 0.0,
+		["ZR"] = 0.0,
+		["VertexIndex"] = 0
+    },
+    ['Pencil'] = {
+        ['Model'] = 'prop_pencil_01',
+		["Bone"] = 58870,
+		["X"] = 0.04,
+		["Y"] = 0.0225,
+		["Z"] = 0.08,
+		["XR"] = 320.0,
+		["YR"] = 0.0,
+		["ZR"] = 220.0,
+		["VertexIndex"] = 0
+    },
 	['Clipboard'] = {
 		["Model"] = "p_amb_clipboard_01",
     	["Bone"] = 18905,

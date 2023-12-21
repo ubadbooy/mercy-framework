@@ -1,4 +1,4 @@
-CallbackModule, CommandsModule = nil, nil, nil
+CallbackModule, CommandsModule = nil, nil
 local BlockedModels = {}
 
 -- [ Code ] --
@@ -25,8 +25,9 @@ Citizen.CreateThread(function()
 
     -- [ Commands ] --
 
-    CommandsModule.Add("shuff", "Shuff your ass", {}, false, function(source, args)
-        TriggerClientEvent('mercy-assets/client/shuffle-seat', source)
+    CommandsModule.Add({"me"}, "Character Expression", {{Name="message", Help="Message"}}, false, function(source, args)
+        local Text = table.concat(args, ' ')
+        TriggerClientEvent('mercy-misc/client/me', -1, source, Text)
     end)
 
     CommandsModule.Add("duty", "Duty Menu", {}, false, function(source, args)
@@ -42,13 +43,14 @@ end)
 
 -- Anti Peds / Vehs / Props
 Citizen.CreateThread(function()
+    BlockedModels = {}
     for _, Entities in pairs(Config.BlacklistedEntitys) do
         table.insert(BlockedModels, Entities)
     end
 end)
 
 AddEventHandler("entityCreating", function(Entity)
-    for _, Hash in pairs(BlockedModels) do
+    for Hash, _ in pairs(BlockedModels) do
         if Hash and GetEntityModel(Entity) == Hash then
             CancelEvent()
             break

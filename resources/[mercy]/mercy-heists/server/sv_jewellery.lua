@@ -10,7 +10,7 @@ Citizen.CreateThread(function()
     end)
 
     CallbackModule.CreateCallback('mercy-heists/server/jewellery/can-rob-vitrine', function(Source, Cb, VitrineId)
-        Cb(Config.JewelleryVitrines[VitrineId])
+        Cb(not Config.JewelleryVitrines[VitrineId])
     end)
 
     EventsModule.RegisterServer("mercy-heists/server/jewellery/set-vitrine-state", function(Source, VitrineId, Bool)    
@@ -21,7 +21,7 @@ Citizen.CreateThread(function()
         Config.JewelleryState = Bool
         TriggerClientEvent('mercy-heists/client/jewellery/sync-state', -1, Config.JewelleryState)
         if Bool then
-            Citizen.SetTimeout((1000 * 60) * 30, function() -- 30 Mins
+            Citizen.SetTimeout((1000 * 60) * Config.ResetTimes['Jewellery'], function() -- 30 Mins
                 Config.JewelleryState = false
                 TriggerClientEvent('mercy-heists/client/jewellery/sync-state', -1, Config.JewelleryState)
                 TriggerEvent('mercy-doors/server/set-locks', Config.JewelleryDoors[1], 1)

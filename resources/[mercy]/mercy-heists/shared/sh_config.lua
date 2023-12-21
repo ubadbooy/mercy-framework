@@ -1,27 +1,36 @@
 Config = Config or {}
 
--- Bankrob
+-- Misc
 
-Config.StoreCops, Config.BankCops, Config.JewelleryCops, Config.BanktruckCops, Config.BobcatCops = 0, 0, 0, 0, 0 -- 2, 3, 3, 3, 4
+Config.ResetTimes = { -- In minutes
+    ['Bobcat'] = 300, -- 5 hours
+    ['Banktruck'] = 30, -- 30 Mins
+    ['Jewellery'] = 30, -- 30 Mins
+    ['Stores'] = 10, -- 10 Mins
+}
+
+Config.StoreCops, Config.BankCops, Config.VaultCops, Config.JewelleryCops, Config.BanktruckCops, Config.BobcatCops = 0, 0, 0, 0, 0, 0 -- 2, 3, 6, 3, 3, 4
 
 Config.GemTypes = {'Jade', 'Ruby', 'Onyx', 'Diamond', 'Sapphire', 'Aquamarine'}
 
+-- Bankrob
+
 Config.BobcatSecurity = {
     [1] = {
-      ['Model'] = 'ig_casey',
-      ['Coords'] = vector4(895.11, -2275.29, 30.47, 98.91),
+        ['Model'] = 'ig_casey',
+        ['Coords'] = vector4(895.11, -2275.29, 30.47, 98.91),
     },
     [2] = {
-      ['Model'] = 'ig_casey',
-      ['Coords'] = vector4(894.94, -2287.58, 30.47, 46.99),
+        ['Model'] = 'ig_casey',
+        ['Coords'] = vector4(894.94, -2287.58, 30.47, 46.99),
     },
     [3] = {
-      ['Model'] = 'ig_casey',
-      ['Coords'] = vector4(892.67, -2292.31, 30.47, 5.2),
+        ['Model'] = 'ig_casey',
+        ['Coords'] = vector4(892.67, -2292.31, 30.47, 5.2),
     },
     [4] = {
-      ['Model'] = 'ig_casey',
-      ['Coords'] = vector4(891.4, -2283.48, 30.47, 334.42),
+        ['Model'] = 'ig_casey',
+        ['Coords'] = vector4(891.4, -2283.48, 30.47, 334.42),
     },
 }
 
@@ -77,6 +86,20 @@ Config.Zones = {
 }
 
 Config.Panels = {
+    ['Pacific'] = {
+        ['FirstDoor'] = {
+            ['HasBeenHit'] = false,
+        },
+        ['SecondDoor'] = {
+            ['HasBeenHit'] = false,
+        },
+        ['LowerVault'] = {
+            ['HasBeenHit'] = false,
+        },
+        ['UpperVault'] = {
+            ['HasBeenHit'] = false,
+        },
+    },
     ['Fleeca'] = {
         [1] = {
             ['Name'] = 'Legion Bank',
@@ -255,7 +278,7 @@ Config.Registers = {
 
 -- [ Jewellery ] --
 
-Config.JewelleryDoors = { 69, 70 }
+Config.JewelleryDoors = { 187, 188 }
 Config.JewelleryState = false
 Config.JewelleryVitrines = { [1] = false, [2] = false, [3] = false, [4] = false, [5] = false, [6] = false, [7] = false, [8] = false, [9] = false, [10] = false, [11] = false, [12] = false, [13] = false }
 
@@ -273,7 +296,6 @@ Config.JewelleryWeapons = {
 -- Bobcat
 
 Config.OutsideDoorsThermited, Config.InsideDoorsThermited = false, false
--- Config.BobcatDoors = { 88, 89, 90, 91 }
 Config.BobcatDoors = { 200, 201, 203, 204 }
 Config.BobcatExploded = false
 

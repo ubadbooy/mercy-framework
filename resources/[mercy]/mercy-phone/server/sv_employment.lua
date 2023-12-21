@@ -39,7 +39,6 @@ Citizen.CreateThread(function()
     end)
     
     CallbackModule.CreateCallback('mercy-phone/server/employment/request-customer-charge', function(Source, Cb, Data)
-        -- Data['BusinessName'], Data['StateId'], Data['Amount'], Data['Comment']
         local TargetPlayer = PlayerModule.GetPlayerByStateId(Data['StateId'])
         if not TargetPlayer then return end
         TriggerClientEvent('mercy-phone/client/notification', TargetPlayer.PlayerData.Source, {
@@ -83,7 +82,6 @@ Citizen.CreateThread(function()
     end)
 
     CallbackModule.CreateCallback('mercy-phone/server/employment/pay-external', function(Source, Cb, Data)
-        -- Data['BusinessName'], Data.Result['state_id'], Data.Result['amount'], Data.Result['comment']
         local Player = PlayerModule.GetPlayerBySource(Source)
         local TPlayer = PlayerModule.GetPlayerByStateId(tonumber(Data.Result['state_id']))
         local CompanyBankId = nil
@@ -94,6 +92,15 @@ Citizen.CreateThread(function()
             if Result[1] == nil then return false end
             CompanyBankId = Result[1].BankId
         end, true)
+
+        Data.Result['amount'] = tonumber(Data.Result['amount'])
+        if Data.Result['amount'] == nil or Data.Result['amount'] == '' or Data.Result['amount'] <= 0 then
+            Cb({
+                Success = false,
+                FailMessage = 'Amount is required and can\'t be 0 or lower',
+            })
+            return
+        end
         
         print('[DEBUG:PayExternal]: Paying employee', CompanyBankId)
         if CompanyBankId then

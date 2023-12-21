@@ -63,7 +63,7 @@ Citizen.CreateThread(function()
             Player.PlayerData.CitizenId,
         }, function(BankData) 
             if BankData[1] ~= nil then
-                -- Add Main Account first
+                -- Add Main Account of player
                 for i=1, #BankData do
                     local Account = BankData[i]
                     if Account.Type == 'Standard' then
@@ -80,25 +80,28 @@ Citizen.CreateThread(function()
                     end
                 end
 
-                -- Add Others later
-                for j=1, #BankData do
-                    local Account = BankData[j]
-                    if Account.Type ~= 'Standard' then
-                        local AccountData = {}
-                        AccountData['AccountOwner'] = Player.PlayerData.CharInfo.Firstname..' '..Player.PlayerData.CharInfo.Lastname
-                        AccountData['AccountName'] = Account.Name
-                        AccountData['AccountId'] = Account.BankId
-                        AccountData['Balance'] = Account.Balance
-                        AccountData['Type'] = Account.Type
-                        AccountData['Transactions'] = json.decode(Account.Transactions)
-                        AccountData['Active'] = Account.Active
-                        AccountData['Monitoring'] = Account.Monitoring
-                        AccountTable[#AccountTable+1] = AccountData
+                DatabaseModule.Execute("SELECT * FROM player_accounts", {}, function(AccountsData) 
+                    if AccountsData[1] ~= nil then
+                        for k, v in pairs(AccountsData) do
+                            if exports['mercy-business']:IsPlayerInBusiness(Player, v.Name) and exports['mercy-business']:HasBusinessPermission(Player, v.Name, 'account_access') then
+                                local AccountData = {}
+                                AccountData['AccountOwner'] = exports['mercy-business']:GetBusinessOwnerName(v.Name)
+                                AccountData['AccountName'] = v.Name
+                                AccountData['AccountId'] = v.BankId
+                                AccountData['Balance'] = v.Balance
+                                AccountData['Type'] = v.Type
+                                AccountData['Transactions'] = json.decode(v.Transactions)
+                                AccountData['Active'] = v.Active
+                                AccountData['Monitoring'] = v.Monitoring
+                                AccountTable[#AccountTable+1] = AccountData
+                            end
+                        end
                     end
-                end
+                end, true)
+
                 Cb(AccountTable)
             else
-                print('[DEBUG:Financials]: No accounts found for player, creating main account.')
+                DebugPrint('Info', 'No accounts found for player, creating main account.')
                 -- Add main account to DB
                 DatabaseModule.Insert("INSERT INTO player_accounts (CitizenId, Type, Name, BankId, Balance, Authorized, Transactions, Active) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", {
                     Player.PlayerData.CitizenId,
@@ -148,7 +151,7 @@ Citizen.CreateThread(function()
         if CurrentBalance >= tonumber(Data['Amount']) then
             local NewBalance = (CurrentBalance - tonumber(Data['Amount']))
             Player.Functions.AddMoney('Cash', tonumber(Data['Amount']), Data['Reason'])
-            if Player.PlayerData.CharInfo['BankNumber'] == Data['AccountId'] then -- Update Main Account
+            if tonumber(Player.PlayerData.CharInfo['BankNumber']) == tonumber(Data['AccountId']) then -- Update Main Account
                 Player.Functions.RemoveMoney('Bank', tonumber(Data['Amount']))
             end
             DatabaseModule.Update("UPDATE player_accounts SET Balance = ? WHERE BankId = ?", {
@@ -167,7 +170,7 @@ Citizen.CreateThread(function()
         local CurrentBalance = GetCurrentAccountBalance(Data['AccountId'])
         if Player.Functions.RemoveMoney('Cash', tonumber(Data['Amount']), Data['Reason']) then
             local NewBalance = (CurrentBalance + tonumber(Data['Amount']))
-            if Player.PlayerData.CharInfo['BankNumber'] == Data['AccountId'] then -- Update Main Account
+            if tonumber(Player.PlayerData.CharInfo['BankNumber']) == tonumber(Data['AccountId']) then -- Update Main Account
                 Player.Functions.AddMoney('Bank', tonumber(Data['Amount']))
             end
             DatabaseModule.Update("UPDATE player_accounts SET Balance = ? WHERE BankId = ?", {
@@ -190,10 +193,10 @@ Citizen.CreateThread(function()
             local CurrentBalance = GetCurrentAccountBalance(tonumber(Data['AccountId']))
             if CurrentBalance < tonumber(Data['Amount']) then return Cb(false) end
             if tonumber(Data['AccountId']) == tonumber(Player.PlayerData.CharInfo['BankNumber']) then -- Sender's main account
-                print('[DEBUG]: Removing Sender\'s money from MAIN account')
+                DebugPrint('Transfer', 'Removing Sender\'s money from MAIN account')
                 Player.Functions.RemoveMoney('Bank', tonumber(Data['Amount']), Data['Reason'])
             else -- Sender's other account
-                print('[DEBUG]: Removing Sender\'s money from OTHER account')
+                DebugPrint('Transfer', 'Removing Sender\'s money from OTHER account')
                 DatabaseModule.Update("UPDATE player_accounts SET Balance = ? WHERE BankId = ?", {
                     (CurrentBalance - tonumber(Data['Amount'])),
                     tonumber(Data['AccountId'])
@@ -203,9 +206,9 @@ Citizen.CreateThread(function()
             if PlayerResult[1] ~= nil then -- Target's Main Account
                 local TargetPlayer = PlayerModule.GetPlayerByStateId(tonumber(PlayerResult[1]['CitizenId']))
                 if TargetPlayer then -- Target is online
-                    print('[DEBUG]: Adding Target\'s money to MAIN account (ONLINE)')
+                    DebugPrint('Transfer', 'Target is online, adding money to MAIN account')
                     -- Update Target Money
-                    TargetPlayer.Functions.AddMoney('Bank', tonumber(Data['Amount'], Data['Reason']))
+                    TargetPlayer.Functions.AddMoney('Bank', tonumber(Data['Amount']), Data['Reason'])
                     -- Create Transactions
                     AddTransactionCard({['Title'] = 'Money sent', ['Who'] = Player.PlayerData.CharInfo.Firstname..' '..Player.PlayerData.CharInfo.Lastname, ['Id'] = Data['AccountId'], ['Amount'] = Data['Amount'], ['Reason'] = Data['Reason'], ['Type'] = 'Transfer'})
                     SetTimeout(250, function()
@@ -213,11 +216,11 @@ Citizen.CreateThread(function()
                         Cb(true)
                     end)
                 else -- Target is offline
-                    print('[DEBUG]: Adding Target\'s money to MAIN account (OFFLINE)')
+                    DebugPrint('Transfer', 'Target is offline, adding money to MAIN account')
                     -- Update Target Money
                     local TargetStateId = PlayerResult[1].CitizenId
                     local TargetMoney = json.decode(PlayerResult[1].Money)
-                    TargetMoney['Bank'] = (TargetMoney['Bank'] + Data['Amount'])
+                    TargetMoney['Bank'] = (tonumber(TargetMoney['Bank']) + tonumber(Data['Amount']))
                     DatabaseModule.Update("UPDATE players SET Money = ? WHERE CitizenId = ?", {
                         json.encode(TargetMoney),
                         TargetStateId
@@ -231,9 +234,11 @@ Citizen.CreateThread(function()
                     end)
                 end
             else -- Target's Other Account
-                print('[DEBUG]: Adding Target\'s money to OTHER account')
+                DebugPrint('Transfer', 'Adding Target\'s money to OTHER account')
+                local AccountOwner = GetOwnerOfAccount(Data['ToAccountId'])
+                if not AccountOwner then return Cb(false) end
                 -- Update Target Money
-                local TargetPlayer = PlayerModule.GetPlayerByStateId(tonumber(PlayerResult[1].CitizenId))
+                local TargetPlayer = PlayerModule.GetPlayerByStateId(tonumber(AccountOwner))
                 local TargetCurrentBalance = GetCurrentAccountBalance(Data['ToAccountId'])
                 DatabaseModule.Update("UPDATE player_accounts SET Balance = ? WHERE BankId = ?", {
                     (TargetCurrentBalance + tonumber(Data['Amount'])),
@@ -245,10 +250,19 @@ Citizen.CreateThread(function()
                     AddTransactionCard({['Title'] = 'Money received', ['Who'] = TargetPlayer.PlayerData.CharInfo.Firstname..' '..TargetPlayer.PlayerData.CharInfo.Lastname, ['Id'] = Data['ToAccountId'], ['Amount'] = Data['Amount'], ['Reason'] = Data['Reason'], ['Type'] = 'Transfer Received'})
                     Cb(true)
                 else -- Target is offline
-                    local TargetCharInfo = json.decode(PlayerResult[1].CharInfo)
-                    AddTransactionCard({['Title'] = 'Money sent', ['Who'] = Player.PlayerData.CharInfo.Firstname..' '..Player.PlayerData.CharInfo.Lastname, ['Id'] = Data['AccountId'], ['Amount'] = Data['Amount'], ['Reason'] = Data['Reason'], ['Type'] = 'Transfer'})
-                    AddTransactionCard({['Title'] = 'Money received', ['Who'] = TargetCharInfo.Firstname..' '..TargetCharInfo.Lastname, ['Id'] = Data['ToAccountId'], ['Amount'] = Data['Amount'], ['Reason'] = Data['Reason'], ['Type'] = 'Transfer Received'})
-                    Cb(true)
+                    -- Get charinfo using citizenid using database
+                    DatabaseModule.Execute("SELECT * FROM players WHERE CitizenId = ?", {
+                        AccountOwner
+                    }, function(TargetResult)
+                        if TargetResult[1] ~= nil then
+                            local TargetCharInfo = json.decode(TargetResult[1].CharInfo)
+                            AddTransactionCard({['Title'] = 'Money sent', ['Who'] = Player.PlayerData.CharInfo.Firstname..' '..Player.PlayerData.CharInfo.Lastname, ['Id'] = Data['AccountId'], ['Amount'] = Data['Amount'], ['Reason'] = Data['Reason'], ['Type'] = 'Transfer'})
+                            AddTransactionCard({['Title'] = 'Money received', ['Who'] = TargetCharInfo.Firstname..' '..TargetCharInfo.Lastname, ['Id'] = Data['ToAccountId'], ['Amount'] = Data['Amount'], ['Reason'] = Data['Reason'], ['Type'] = 'Transfer Received'})
+                            Cb(true)
+                        else
+                            Cb(false)
+                        end
+                    end)
                 end
             end
         end)
@@ -259,14 +273,16 @@ end)
 
 RegisterNetEvent('mercy-financials/server/sync-main-bank', function(Source, BankAmount)
     local Player = PlayerModule.GetPlayerBySource(Source)
-    if not Player then return print('[ERROR]: Player not found, can\'t sync main bank balance..') end
+    if not Player then 
+        return DebugPrint('SyncError', 'Player not found, can\'t sync main bank balance..')
+    end
     
     DatabaseModule.Execute("SELECT * FROM player_accounts WHERE CitizenId = ? AND BankId = ?", {
         Player.PlayerData.CitizenId,
         Player.PlayerData.CharInfo['BankNumber']
     }, function(BankData) 
         if BankData[1] == nil then -- Main Account does not exist yet
-            print('[DEBUG:Financials]: Main account did not exist when syncing main bank, creating...')
+            DebugPrint('Info', 'Main account did not exist when syncing main bank, creating...')
             DatabaseModule.Insert("INSERT INTO player_accounts (CitizenId, Type, Name, BankId, Balance, Authorized, Transactions, Active) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", {
                 Player.PlayerData.CitizenId,
                 'Standard',
@@ -280,7 +296,7 @@ RegisterNetEvent('mercy-financials/server/sync-main-bank', function(Source, Bank
 
             end)
         else
-            print('[DEBUG:Financials]: Main account exists for update, updating...')
+            DebugPrint('Info', 'Main account exists for update, updating...')
             DatabaseModule.Update("UPDATE player_accounts SET Balance = ? WHERE BankId = ?", {
                 tonumber(BankAmount),
                 Player.PlayerData.CharInfo['BankNumber']
@@ -291,6 +307,18 @@ RegisterNetEvent('mercy-financials/server/sync-main-bank', function(Source, Bank
 end)
 
 -- [ Functions ] --
+
+function GetOwnerOfAccount(AccountId)
+    local ReturnData = nil
+    DatabaseModule.Execute("SELECT * FROM player_accounts WHERE BankId = ?", {
+        AccountId
+    }, function(BankResult)
+        if BankResult[1] ~= nil then
+            ReturnData = BankResult[1].CitizenId
+        end
+    end, true)
+    return ReturnData
+end
 
 function GetCurrentAccountBalance(BankNumber, Player)
     local ReturnData = 0
@@ -346,3 +374,12 @@ function GetUniqueAccountId()
     return BankId
 end
 exports('GetUniqueAccountId', GetUniqueAccountId)
+
+function DebugPrint(Type, Message, ...)
+    if not Config.Debug then return end
+    if ... ~= nil then
+        print(('^4[^5Debug^4:^5Financials^4:^5%s^4]:^7 %s %s'):format(Type, Message, ...))
+    else
+        print(('^4[^5Debug^4:^5Financials^4:^5%s^4]:^7 %s'):format(Type, Message))
+    end
+end

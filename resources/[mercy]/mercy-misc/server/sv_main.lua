@@ -27,11 +27,6 @@ Citizen.CreateThread(function()
         Citizen.Wait(4) 
     end 
 
-    CommandsModule.Add({"me"}, "Character Expression", {{Name="message", Help="Message"}}, false, function(source, args)
-        local Text = table.concat(args, ' ')
-        TriggerClientEvent('mercy-misc/client/me', -1, Source, Text)
-    end)
-
     CommandsModule.Add({"carry"}, "Carry the closest person", {}, false, function(source, args)
         local Player = PlayerModule.GetPlayerBySource(source)
         local Text = args[1]
@@ -80,9 +75,7 @@ Citizen.CreateThread(function()
         }
         Config.Sprays[#Config.Sprays + 1] = NewSpray
         TriggerClientEvent('mercy-misc/client/sync-sprays', -1, NewSpray)
-        SetTimeout(100, function()
-            TriggerClientEvent('mercy-misc/client/done-placing-spray', Source, CustomId)
-        end)
+        TriggerClientEvent('mercy-misc/client/done-placing-spray', Source, CustomId)
     end)
 
     EventsModule.RegisterServer("mercy-misc/server/gopro-place", function(Source, Coords, Heading, Encrypted, IsVehicle, Vehicle)
@@ -111,7 +104,7 @@ Citizen.CreateThread(function()
     end)
     
     EventsModule.RegisterServer('mercy-misc/server/goldpanning/get-loot', function(Source, Multiplier)
-        print('Giving goldpanning loot', Multiplier)
+        print('[DEBUG:Misc]: Giving goldpanning loot. Multiplier: '..Multiplier)
         if Multiplier == 1 then
 
         elseif Multiplier == 2 then
@@ -120,6 +113,93 @@ Citizen.CreateThread(function()
 
         end
     end)
+
+    function ShuffleTable(tbl)
+        local random = math.random
+        local n = #tbl
+
+        for i = n, 2, -1 do
+            local j = random(i)
+            tbl[i], tbl[j] = tbl[j], tbl[i]
+        end
+    end
+
+    EventsModule.RegisterServer('mercy-misc/server/metal-detecting/get-loot', function(Source)
+        print('[DEBUG:Misc]: Giving metal detecting loot.')
+
+        local Player = PlayerModule.GetPlayerBySource(Source)
+        if not Player then return end
+        local RandomChance = math.random(0, 100) / 100
+
+        local ShuffledItems = {}
+        for ItemName, Chance in pairs(Config.MetalDetectItems) do
+            table.insert(ShuffledItems, { Name = ItemName, Chance = Chance })
+        end
+        ShuffleTable(ShuffledItems)
+
+        for _, ItemData in ipairs(ShuffledItems) do
+            if RandomChance <= ItemData.Chance then
+                Player.Functions.AddItem(ItemData.Name, math.random(1, 4), false, {}, true)
+                return
+            end
+        end
+
+        Player.Functions.Notify('no-item', 'You did not find anything..', 'error')
+    end)
+
+    EventsModule.RegisterServer('mercy-misc/server/recycle/get-loot', function(Source)
+        print('[DEBUG:Misc]: Giving recycle loot.')
+        local Player = PlayerModule.GetPlayerBySource(Source)
+        if not Player then return end
+
+        Player.Functions.AddItem('recyclablematerial', math.random(5, 8), false, false, true)
+    end)
+
+    EventsModule.RegisterServer('mercy-misc/server/get-tea', function(Source)
+        local Player = PlayerModule.GetPlayerBySource(Source)
+        if not Player then return end
+        if Player.Functions.RemoveItem('water', 1) then
+            Player.Functions.AddItem('mugoftea', 1, false, {}, true)
+        end
+    end)
+
+    EventsModule.RegisterServer('mercy-misc/server/write-notepad', function(Source, Text)
+        local Player = PlayerModule.GetPlayerBySource(Source)
+        if not Player then return end
+          
+        local Notepad = Player.Functions.GetItemByName('notepad')
+        if Notepad == nil then return end
+
+        if Player.Functions.AddItem('notepad-page', 1, false, {Note = Text}, true) then
+            Notepad.Info.Pages = Notepad.Info.Pages - 1
+            Player.Functions.SetItemBySlotAndKey(Notepad.Slot, "Info", Notepad.Info)
+            if Notepad.Info.Pages <= 0 then
+                Player.Functions.RemoveItem('notepad', 1, Notepad.Slot, true)          
+            end
+        end
+    end)
+end)
+
+RegisterNetEvent("mercy-misc/server/sprays/try-remove", function(Data)
+    local src = source
+    local Player = PlayerModule.GetPlayerBySource(src)
+    if not Player then return end
+
+    if Player.Functions.RemoveItem('scrubbingcloth', 1) then
+        TriggerClientEvent('mercy-misc/client/sprays/remove', src, Data.Id)
+    else
+        Player.Functions.Notify('no-scrub-cloth', 'You do not seem to have a scrubbing cloth..', 'error')
+    end
+end)
+
+RegisterNetEvent("mercy-misc/server/sprays/remove", function(Id)
+    for SprayId, Spray in pairs(Config.Sprays) do
+        if tonumber(SprayId) == tonumber(Id) then
+            TriggerClientEvent('mercy-misc/client/sync-sprays', -1, Spray, true, SprayId)
+            table.remove(Config.Sprays, SprayId)
+            return
+        end
+    end
 end)
 
 RegisterNetEvent("mercy-misc/server/carry-target", function(TargetServer)

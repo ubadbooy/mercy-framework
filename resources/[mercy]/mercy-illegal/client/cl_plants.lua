@@ -74,7 +74,7 @@ end)
 
 RegisterNetEvent('mercy-items/client/used-seeds-female', function()
     Citizen.SetTimeout(500, function()
-        local FoundPlace, PlayerCoords = false, GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0, 0.75, 0) GetEntityCoords(PlayerPedId())
+        local FoundPlace, PlayerCoords = false, GetOffsetFromEntityInWorldCoords(PlayerPedId(), 0, 0.75, 0)
         local RayHandle = StartExpensiveSynchronousShapeTestLosProbe(PlayerCoords.x, PlayerCoords.y, PlayerCoords.z, PlayerCoords.x, PlayerCoords.y, PlayerCoords.z - 2, 1, 0, 4)
         local _, Hit, _, _, MaterialHash, _ = GetShapeTestResultIncludingMaterial(RayHandle)
         if Hit then
@@ -198,7 +198,7 @@ function ShowPlantMenu(PlantId)
 
         MenuData[#MenuData + 1] = {
             ['Title'] = 'Weed Plant #'..PlantId,
-            ['Desc'] = 'Health: '..PlantData.Health..'; Water: '..PlantData.Water..'; Fertilizer: '..PlantData.Fertilizer..'; Pregnant: '..PlantData.Pregnant,
+            ['Desc'] = 'Health: '..PlantData.Health..'%; Water: '..PlantData.Water..'%; Fertilizer: '..PlantData.Fertilizer..'%; Pregnant: '..(PlantData.Pregnant == 'False' and 'No' or 'Yes'),
             ['Data'] = {['Event'] = '', ['Type'] = ''},
         }
 
@@ -265,6 +265,7 @@ end
 function IsPlantPickable(Entity)
     local PlantId = GetPlantId(Entity)
     local PlantData = GetPlantById(PlantId)
+    if not PlantData then return false end
     if PlantData ~= nil and type(PlantData.Stage) == 'number' then
         if PlantData.Stage >= 100 then
             return true
@@ -316,7 +317,7 @@ end)
 
 function RemoveAllPlants()
     for k, v in pairs(ActivePlants) do
-        RemovePlant(v.Object) 
+        RemovePlant(k) 
     end
     ActivePlants = {}
 end

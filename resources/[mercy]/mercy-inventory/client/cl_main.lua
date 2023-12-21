@@ -11,7 +11,6 @@ AddEventHandler('Modules/client/ready', function()
         'Callback',
         'Vehicle',
         'Keybinds',
-        'Vehicle',
     }, function(Succeeded)
         if not Succeeded then return end
         PlayerModule = exports['mercy-base']:FetchModule('Player')
@@ -60,7 +59,16 @@ RegisterNetEvent("mercy-base/client/player-spawned", function()
         })
     end)
 end)
+ 
+-- [ Degen Command ] -- 
 
+RegisterCommand('degen', function(source, args, RawCommand)
+    if not PlayerModule.IsPlayerAdmin() then return end
+
+    local Item = args[1]
+    local Amount = args[2] ~= nil and tonumber(args[2]) or 1
+    EventsModule.TriggerServer('mercy-inventory/server/degen-item', exports['mercy-inventory']:GetSlotForItem(Item), Amount)
+end)
 
 -- [ Code ] -- 
 
@@ -168,15 +176,16 @@ RegisterNetEvent('mercy-inventory/client/open-empty-other', function()
     SetTimecycleModifier('hud_def_blur')
     SetTimecycleModifierStrength(1.0)
     -- Config.InventoryBusy = true
+    local PlayerData = PlayerModule.GetPlayerData()
     DoPickupAnimation()
     
     SendNUIMessage({
         Action = 'OpenInventory',
-        Items = FormatItemData(PlayerModule.GetPlayerData().Inventory),
+        Items = FormatItemData(PlayerData.Inventory),
         Slots = Config.InventorySlots,
-        Weight = GetTotalWeight(PlayerModule.GetPlayerData().Inventory),
+        Weight = GetTotalWeight(PlayerData.Inventory),
         OtherExtra = 'Empty',
-        PlayerData = PlayerModule.GetPlayerData(),
+        PlayerData = PlayerData,
     })
 
     Citizen.InvokeNative(0xFC695459D4D0E219, 0.5, 0.5)
@@ -186,12 +195,12 @@ end)
 RegisterNetEvent('mercy-inventory/client/open-inventory-other', function(OtherData)
     SetTimecycleModifier('hud_def_blur')
     SetTimecycleModifierStrength(1.0)
-
+    local PlayerData = PlayerModule.GetPlayerData()
     SendNUIMessage({
         Action = 'OpenInventory',
         Slots = Config.InventorySlots,
-        Items = FormatItemData(PlayerModule.GetPlayerData().Inventory),
-        Weight = GetTotalWeight(PlayerModule.GetPlayerData().Inventory),
+        Items = FormatItemData(PlayerData.Inventory),
+        Weight = GetTotalWeight(PlayerData.Inventory),
         Other = OtherData,
         OtherMaxWeight = OtherData['MaxWeight'] ~= nil and OtherData['MaxWeight'] or 100,
         OtherItems = OtherData['Type'] == "Crafting" and FormatNoDataItems(OtherData['Items'])
@@ -203,17 +212,14 @@ RegisterNetEvent('mercy-inventory/client/open-inventory-other', function(OtherDa
                     or OtherData['Type'] == 'Store' and FormatNoDataItems(OtherData['Items'])
                     or OtherData['Items'] ~= nil and FormatItemData(OtherData['Items']) or {},
         OtherExtra = false,
-        PlayerData = PlayerModule.GetPlayerData(),
+        PlayerData = PlayerData,
     })
 
     Citizen.InvokeNative(0xFC695459D4D0E219, 0.5, 0.5)
     SetNuiFocus(true, true)
 
-    if OtherData['Type'] == 'Trunk' then
-        DoTrunkAnimation(Vehicle, true)
-        VehicleModule.SetVehicleDoorOpen(OtherData['ExtraData'], 5)
-    else
-        DoPickupAnimation()
+    if OtherData['Type'] ~= 'Trunk' then
+        DoPickupAnimation() 
     end
     -- Config.InventoryBusy = false
 end)
@@ -253,11 +259,7 @@ RegisterNetEvent('mercy-inventory/client/use-weapon', function(ItemData)
     local CurrentWeapon = GetSelectedPedWeapon(PlayerPedId())
 
     if GetHashKey(WeaponName) == CurrentWeapon then -- If we have the weapon out
-        exports['mercy-assets']:DoHolsterAnim()
-        TriggerEvent('mercy-weapons/client/set-current-weapon', nil)
-        TriggerEvent('mercy-assets/client/attach-items')
-        RemoveAllPedWeapons(PlayerPedId(), true)
-        SetCurrentPedWeapon(PlayerPedId(), GetHashKey("WEAPON_UNARMED"), true)
+        TriggerEvent('mercy-inventory/client/reset-weapon', true)
         return
     end
 
@@ -265,12 +267,18 @@ RegisterNetEvent('mercy-inventory/client/use-weapon', function(ItemData)
 
     Citizen.SetTimeout(15, function()
         exports['mercy-assets']:DoHolsterAnim()
-
         if Config.Throwables[WeaponName] then Ammo = 1 end
 
         GiveWeaponToPed(PlayerPedId(), GetHashKey(WeaponName), Ammo, false, false)
         SetPedAmmo(PlayerPedId(), GetHashKey(WeaponName), Ammo)
         SetCurrentPedWeapon(PlayerPedId(), GetHashKey(WeaponName), true)
+
+        local Attachments = HasAnyAttachments()
+        if Attachments ~= nil then
+            for k, v in pairs(Attachments) do
+                GiveWeaponComponentToPed(PlayerPedId(), GetHashKey(WeaponName), GetHashKey(Config.Attachments[v][WeaponName]))
+            end
+        end
 
         if WeaponName == 'weapon_glock' then
             GiveWeaponComponentToPed(PlayerPedId(), GetHashKey(WeaponName), GetHashKey('COMPONENT_AT_GLOCK_FLSH'))
@@ -282,13 +290,6 @@ RegisterNetEvent('mercy-inventory/client/use-weapon', function(ItemData)
             GiveWeaponComponentToPed(PlayerPedId(), GetHashKey(WeaponName), GetHashKey('COMPONENT_AT_M4_AFGRIP'))
             GiveWeaponComponentToPed(PlayerPedId(), GetHashKey(WeaponName), GetHashKey('COMPONENT_AT_SCOPE_M4'))
         end
-
-        local Attachments = HasAnyAttachments()
-        if Attachments ~= nil then
-            for k, v in pairs(Attachments) do
-                GiveWeaponComponentToPed(PlayerPedId(), GetHashKey(WeaponName), GetHashKey(Config.Attachments[v][WeaponName]))
-            end
-        end
         
         SetWeaponsNoAutoswap(true)
         TriggerEvent('mercy-weapons/client/set-current-weapon', ItemData)
@@ -296,8 +297,11 @@ RegisterNetEvent('mercy-inventory/client/use-weapon', function(ItemData)
     end)
 end)
 
-RegisterNetEvent("mercy-inventory/client/reset-weapon", function()
+RegisterNetEvent("mercy-inventory/client/reset-weapon", function(Anim)
     TriggerEvent('mercy-assets/client/reset-holster')
+    if Anim ~= nil and Anim then
+        exports['mercy-assets']:DoHolsterAnim()
+    end
     Citizen.SetTimeout(100, function()
         DisablePlayerFiring(PlayerId(), false)
         SetPlayerCanDoDriveBy(PlayerId(), true)
@@ -355,7 +359,7 @@ RegisterNetEvent("mercy-inventory/client/update-player", function()
         Weight = GetTotalWeight(PlayerData.Inventory),
         PlayerData = PlayerModule,
     })
-    TriggerEvent('mercy-assets/client/attach-items')
+-- TriggerEvent('mercy-assets/client/attach-items')
 end)
 
 RegisterNetEvent("mercy-inventory/client/craft", function(ItemName, Amount, ToSlot, Info, Cost)
@@ -438,17 +442,18 @@ function InitInventory()
             TriggerEvent('mercy-inventory/client/open-inventory')
             return
         end
-        EventsModule.TriggerServer('mercy-inventory/server/open-other-inventory', InvName, InvType, MaxSlots, MaxWeight)
+        EventsModule.TriggerServer('mercy-inventory/server/open-other-inventory', InvName, InvType, MaxSlots, MaxWeight, Vehicle or nil)
     end)
 
     KeybindsModule.Add("openInventoryHotbar", "Player", "Show Inventory Hotbar", 'Z', function(IsPressed)
         if Config.InventoryBusy then return end
         if IsPressed then
             if not ShowingHotbar then
+                local PlayerData = PlayerModule.GetPlayerData()
                 ShowingHotbar = true
                 SendNUIMessage({
                     Action = "ToggleHotbar",
-                    Items = FormatItemData(PlayerModule.GetPlayerData().Inventory),
+                    Items = FormatItemData(PlayerData.Inventory),
                     Visible = true,
                 })
             end
@@ -470,7 +475,8 @@ end
 exports('GetLastUsedSlot', GetLastUsedSlot)
 
 function GetSlotForItem(ItemName)
-    for k, v in pairs(PlayerModule.GetPlayerData().Inventory) do
+    local PlayerData = PlayerModule.GetPlayerData()
+    for k, v in pairs(PlayerData.Inventory) do
         if v.ItemName == ItemName and HasEnoughQuality(1, v.Slot) then
             return v.Slot
         end
@@ -487,6 +493,21 @@ function CanOpenInventory()
     return not Config.InventoryBusy
 end
 exports('CanOpenInventory', CanOpenInventory)
+
+function GetItemAmount(ItemName)
+    if PlayerModule == nil then return 0 end
+    local PlayerData = PlayerModule.GetPlayerData()
+    if PlayerData.Inventory == nil then return 0 end
+
+    local TotalItems = 0
+    for k, v in pairs(PlayerData.Inventory) do
+        if v.ItemName == ItemName and HasEnoughQuality(1, v.Slot) then
+            TotalItems = TotalItems + v.Amount
+        end
+    end
+    return TotalItems
+end
+exports('GetItemAmount', GetItemAmount)
 
 function HasEnoughOfItem(ItemName, RequestedAmount)
     local TotalItems = 0
@@ -558,7 +579,6 @@ function FormatItemData(ItemData)
             ['Info'] = v.Info,
             ['Description'] = v.Description,
             ['Combinable'] = v.Combinable,
-            ['CreateDate'] = v.CreateDate,
         }
     end
     return ReturnData
@@ -581,7 +601,6 @@ function FormatNoDataItems(ItemData)
             ['Price'] = v.Price ~= nil and v.Price or 0,
             ['Description'] = Data['Description'],
             ['Combinable'] = Data['Combinable'],
-            ['CreateDate'] = v.CreateDate,
             ['Cost'] = Data['Cost'],
         }
     end
@@ -659,12 +678,12 @@ function DoTrunkAnimation(Vehicle, Open)
     Citizen.CreateThread(function()
         if Open then
             TaskTurnPedToFaceEntity(PlayerPedId(), Vehicle, 1.0)
-            SetVehicleDoorOpen(Vehicle, 5, true, false)
+            VehicleModule.SetVehicleDoorOpen(Vehicle, 5)
             FunctionsModule.RequestAnimDict('mini@repair')
             TaskPlayAnim(PlayerPedId(), 'mini@repair', 'fixing_a_player', 8.0, -8, -1, 16, 0, 0, 0, 0);
         else
             StopAnimTask(PlayerPedId(), 'mini@repair', 'fixing_a_player', 1.0)
-            SetVehicleDoorShut(Vehicle, 5, true, false)
+            VehicleModule.SetVehicleDoorShut(Vehicle, 5)
         end
     end)
 end
@@ -691,12 +710,13 @@ RegisterNUICallback('UseItem', function(Data)
 end)
 
 RegisterNUICallback('RefreshInv', function(data)
+    local PlayerData = PlayerModule.GetPlayerData()
     SendNUIMessage({
         Action = 'RefreshInventory',
         Slots = Config.InventorySlots,
-        Items = FormatItemData(PlayerModule.GetPlayerData().Inventory),
-        Weight = GetTotalWeight(PlayerModule.GetPlayerData().Inventory),
-        PlayerData = PlayerModule.GetPlayerData(),
+        Items = FormatItemData(PlayerData.Inventory),
+        Weight = GetTotalWeight(PlayerData.Inventory),
+        PlayerData = PlayerData,
     })
     TriggerEvent('mercy-assets/client/attach-items')
 end)
@@ -712,21 +732,21 @@ RegisterNUICallback('CloseInventory', function(Data, Cb)
     TriggerServerEvent('mercy-inventory/server/closed', Data.OtherInv, Data.OtherName)
     SetTimecycleModifier('default')
     if IsEntityPlayingAnim(PlayerPedId(), 'mini@repair', 'fixing_a_player', 3) then
-        SetVehicleDoorShut(Vehicle, 5, false, true)
-        StopAnimTask(PlayerPedId(), 'mini@repair', 'fixing_a_player', 1.0)
+        if Data.ExtraData ~= nil then
+            DoTrunkAnimation(Data.ExtraData, false)
+        end
     elseif Data.OtherName ~= nil and string.match(Data.OtherName, "HiddenContainer") then
         ClearPedTasks(PlayerPedId())
     else
         DoPickupAnimation()
     end
-
     TriggerServerEvent('mercy-inventory/server/check-other', Data.OtherInv, Data.OtherName)
-    TriggerEvent('animations:client:EmoteCommandStart', { "c" })
+    TriggerEvent('mercy-animations/client/clear-animation')
     CurrentStealNumber = nil
-    -- UsingKey = true
-    -- Citizen.SetTimeout(500, function()
-    --     UsingKey = false
-    -- end)
+    UsingKey = true
+    Citizen.SetTimeout(500, function()
+        UsingKey = false
+    end)
     SetNuiFocus(false, false)
     Cb('Ok')
 end)
@@ -768,7 +788,6 @@ RegisterNUICallback('SaveInventory', function(data)
 	    	Info = InventoryData['Info'],
 	    	Description = InventoryData['Description'],
 	    	Combinable = InventoryData['Combinable'],
-            CreateDate = InventoryData['CreateDate'],
         }
     elseif data.Type == 'SaveNow' then
         TriggerServerEvent('mercy-inventory/server/set-player-items', InventorySaveData)

@@ -1,62 +1,53 @@
-Citizen.CreateThread(function()
-    exports['mercy-ui']:AddEyeEntry("pd_impound_check_in", {
-        Type = 'Entity',
-        EntityType = 'Ped',
-        SpriteDistance = 10.0,
-        State = false,
-        Position = vector4(464.52, -1013.06, 27.07, 179.94),
-        Model = 'cs_fbisuit_01',
-        Options = {
-            {
-                Name = 'clock_in',
-                Icon = 'fas fa-clock',
-                Label = 'Clock In',
-                EventType = 'Client',
-                EventName = 'mercy-business/client/foodchain/set-duty',
-                EventParams = { Business = 'Los Santos Depot', Clocked = true },
-                Enabled = function(Entity)
-                    local CurrentClock = exports['mercy-business']:GetClockedData()
-                    if not CurrentClock.Clocked and exports['mercy-business']:IsPlayerInBusiness('Los Santos Depot') then
-                        return true
-                    else
-                        return false
-                    end
-                end,
-            },
-            {
-                Name = 'clock_out',
-                Icon = 'fas fa-clock',
-                Label = 'Clock Out',
-                EventType = 'Client',
-                EventName = 'mercy-business/client/foodchain/set-duty',
-                EventParams = { Business = 'Los Santos Depot', Clocked = false },
-                Enabled = function(Entity)
-                    local CurrentClock = exports['mercy-business']:GetClockedData()
-                    if CurrentClock.Clocked and exports['mercy-business']:IsPlayerInBusiness('Los Santos Depot') then
-                        return true
-                    else
-                        return false
-                    end
-                end,
-            },
-        }
-    })
+-- [ Code ] --
+
+-- [ Threads ] --
+
+CreateThread(function()
+    -- exports['mercy-ui']:AddEyeEntry("pd_impound_check_in", {
+    --     Type = 'Entity',
+    --     EntityType = 'Ped',
+    --     SpriteDistance = 10.0,
+    --     State = false,
+    --     Position = vector4(464.52, -1013.06, 27.07, 179.94),
+    --     Model = 'cs_fbisuit_01',
+    --     Options = {
+    --         {
+    --             Name = 'clock_in',
+    --             Icon = 'fas fa-clock',
+    --             Label = 'Clock In',
+    --             EventType = 'Client',
+    --             EventName = 'mercy-business/client/foodchain/set-duty',
+    --             EventParams = { Business = 'Los Santos Depot', Clocked = true },
+    --             Enabled = function(Entity)
+    --                 local CurrentClock = exports['mercy-business']:GetClockedData()
+    --                 if not CurrentClock.Clocked and exports['mercy-business']:IsPlayerInBusiness('Los Santos Depot') then
+    --                     return true
+    --                 else
+    --                     return false
+    --                 end
+    --             end,
+    --         },
+    --         {
+    --             Name = 'clock_out',
+    --             Icon = 'fas fa-clock',
+    --             Label = 'Clock Out',
+    --             EventType = 'Client',
+    --             EventName = 'mercy-business/client/foodchain/set-duty',
+    --             EventParams = { Business = 'Los Santos Depot', Clocked = false },
+    --             Enabled = function(Entity)
+    --                 local CurrentClock = exports['mercy-business']:GetClockedData()
+    --                 if CurrentClock.Clocked and exports['mercy-business']:IsPlayerInBusiness('Los Santos Depot') then
+    --                     return true
+    --                 else
+    --                     return false
+    --                 end
+    --             end,
+    --         },
+    --     }
+    -- })
 end)
 
-function IsGov()
-    local PlayerJob = PlayerModule.GetPlayerData().Job.Name
-    return PlayerJob == 'police' or PlayerJob == 'judge'
-end
-
-function GetDepotSpot()
-    for k, v in pairs(Config.DepotSpots) do
-        if VehicleModule.CanVehicleSpawnAtCoords(v, 2.5) then
-            return v
-        end
-    end
-
-    return false
-end
+-- [ Events ] --
 
 RegisterNetEvent("mercy-vehicles/client/request-impound", function(Data)
     local MenuItems = {}
@@ -393,6 +384,11 @@ RegisterNetEvent('mercy-vehicles/client/take-out-depot', function(Data)
         return
     end
 
+
+    local Result = CallbackModule.SendCallback("mercy-vehicles/server/can-spawn-vehicle", Data.Plate)
+    if not Result then return exports['mercy-ui']:Notify('veh-no-place', "This vehicle is outside depot.", "error") end
+
+
     local Spot = GetDepotSpot()
     if Spot == false then return end
 
@@ -404,6 +400,7 @@ RegisterNetEvent('mercy-vehicles/client/take-out-depot', function(Data)
 
     local Model = VehicleData.vehicle
     local MetaData = json.decode(VehicleData.metadata)
+    local Damage = json.decode(VehicleData.damage)
 
     FunctionsModule.RequestModel(Model)
 
@@ -422,7 +419,8 @@ RegisterNetEvent('mercy-vehicles/client/take-out-depot', function(Data)
     TriggerServerEvent('mercy-vehicles/server/set-veh-state', VehicleData.plate, 'Out', NetId)
 
     Citizen.SetTimeout(500, function()
-        DoCarDamage(Vehicle, MetaData.Engine, MetaData.Body)
+        SetCarDamage(Vehicle, MetaData, Damage)
+        -- DoCarDamage(Vehicle, MetaData.Engine, MetaData.Body)
         NetworkRegisterEntityAsNetworked(Vehicle)
         VehicleModule.SetVehicleNumberPlate(Vehicle, VehicleData.plate)
         VehicleModule.ApplyVehicleMods(Vehicle, 'Request', VehicleData.plate)
@@ -432,3 +430,20 @@ RegisterNetEvent('mercy-vehicles/client/take-out-depot', function(Data)
         exports['mercy-ui']:Notify('outside-veh', "Vehicle can be found outside..", "success")
     end)
 end)
+
+-- [ Functions ] --
+
+function IsGov()
+    local PlayerJob = PlayerModule.GetPlayerData().Job.Name
+    return PlayerJob == 'police' or PlayerJob == 'judge'
+end
+
+function GetDepotSpot()
+    for k, v in pairs(Config.DepotSpots) do
+        if VehicleModule.CanVehicleSpawnAtCoords(v, 2.5) then
+            return v
+        end
+    end
+
+    return false
+end

@@ -29,7 +29,7 @@ Config.CommandList = {
                 ['Options'] = {
                     {
                         ['Id'] = 'player',
-                        ['Name'] = 'Player',
+                        ['Name'] = 'Target (Not Required)',
                         ['Type'] = 'input-choice',
                         ['PlayerList'] = true,
                     },
@@ -53,7 +53,7 @@ Config.CommandList = {
                 ['Options'] = {
                     {
                         ['Id'] = 'player',
-                        ['Name'] = 'Player',
+                        ['Name'] = 'Target (Not Required)',
                         ['Type'] = 'input-choice',
                         ['PlayerList'] = true,
                     },
@@ -71,7 +71,7 @@ Config.CommandList = {
                 ['Options'] = {
                     {
                         ['Id'] = 'player',
-                        ['Name'] = 'Player',
+                        ['Name'] = 'Target (Not Required)',
                         ['Type'] = 'input-choice',
                         ['PlayerList'] = true,
                     },
@@ -89,7 +89,7 @@ Config.CommandList = {
                 ['Options'] = {
                     {
                         ['Id'] = 'player',
-                        ['Name'] = 'Player',
+                        ['Name'] = 'Target (Not Required)',
                         ['Type'] = 'input-choice',
                         ['PlayerList'] = true,
                     },
@@ -107,7 +107,7 @@ Config.CommandList = {
                 ['Options'] = {
                     {
                         ['Id'] = 'player',
-                        ['Name'] = 'Player',
+                        ['Name'] = 'Target (Not Required)',
                         ['Type'] = 'input-choice',
                         ['PlayerList'] = true,
                     },
@@ -155,7 +155,7 @@ Config.CommandList = {
                 ['Options'] = {
                     {
                         ['Id'] = 'player',
-                        ['Name'] = 'Player',
+                        ['Name'] = 'Target (Not Required)',
                         ['Type'] = 'input-choice',
                         ['PlayerList'] = true,
                     },
@@ -173,7 +173,7 @@ Config.CommandList = {
                 ['Options'] = {
                     {
                         ['Id'] = 'player',
-                        ['Name'] = 'Player',
+                        ['Name'] = 'Target (Not Required)',
                         ['Type'] = 'input-choice',
                         ['PlayerList'] = true,
                     },
@@ -191,9 +191,135 @@ Config.CommandList = {
                 ['Options'] = {
                     {
                         ['Id'] = 'player',
-                        ['Name'] = 'Player',
+                        ['Name'] = 'Target (Not Required)',
                         ['Type'] = 'input-choice',
                         ['PlayerList'] = true,
+                    },
+                },
+            },
+            {
+                ['Id'] = 'create_business',
+                ['Name'] = 'Create Business',
+                ['UseKVPGroups'] = true, 
+                -- Below Groups Table will not be used when Option above is enabled. 
+                -- Command Groups will be handled by KVP and can be changed thru a command ingame: menuperms [add,remove,list] [commandid] [group]
+                ['Groups'] = {'all'}, -- 'all', 'admin', 'god', 'mod'
+                ['Event'] = 'Admin:Businesses:Create',
+                ['Collapse'] = true,
+                ['Options'] = {
+                    {
+                        ['Id'] = 'player',
+                        ['Name'] = 'Owner (Not Required)',
+                        ['Type'] = 'input-choice',
+                        ['PlayerList'] = true,
+                    },
+                    {
+                        ['Id'] = 'name',
+                        ['Name'] = 'Business Name',
+                        ['Type'] = 'input',
+                        ['InputType'] = 'text',
+                    },
+                    {
+                        ['Id'] = 'logo',
+                        ['Name'] = 'Business Logo (Font Awesome: eg. fas fa-car)',
+                        ['Type'] = 'input',
+                        ['InputType'] = 'text',
+                    },
+                },
+            },
+            {
+                ['Id'] = 'delete_business',
+                ['Name'] = 'Delete Business',
+                ['UseKVPGroups'] = true, 
+                -- Below Groups Table will not be used when Option above is enabled. 
+                -- Command Groups will be handled by KVP and can be changed thru a command ingame: menuperms [add,remove,list] [commandid] [group]
+                ['Groups'] = {'all'}, -- 'all', 'admin', 'god', 'mod'
+                ['Event'] = 'Admin:Businesses:Delete',
+                ['Collapse'] = true,
+                ['Options'] = {
+                    {
+                        ['Id'] = 'name',
+                        ['Name'] = 'Business',
+                        ['Type'] = 'input-choice',
+                        ['Choices'] = GetBusinesses(),
+                    },
+                },
+            },
+            {
+                ['Id'] = 'set_business_owner',
+                ['Name'] = 'Set Business Owner',
+                ['UseKVPGroups'] = true, 
+                -- Below Groups Table will not be used when Option above is enabled. 
+                -- Command Groups will be handled by KVP and can be changed thru a command ingame: menuperms [add,remove,list] [commandid] [group]
+                ['Groups'] = {'all'}, -- 'all', 'admin', 'god', 'mod'
+                ['Event'] = 'Admin:Businesses:SetOwner',
+                ['Collapse'] = true,
+                ['Options'] = {
+                    {
+                        ['Id'] = 'player',
+                        ['Name'] = 'Target (Not Required)',
+                        ['Type'] = 'input-choice',
+                        ['PlayerList'] = true,
+                    },
+                    {
+                        ['Id'] = 'name',
+                        ['Name'] = 'Business',
+                        ['Type'] = 'input-choice',
+                        ['Choices'] = GetBusinesses(),
+                    },
+                },
+            },
+            {
+                ['Id'] = 'set_business_logo',
+                ['Name'] = 'Set Business Logo',
+                ['UseKVPGroups'] = true, 
+                -- Below Groups Table will not be used when Option above is enabled. 
+                -- Command Groups will be handled by KVP and can be changed thru a command ingame: menuperms [add,remove,list] [commandid] [group]
+                ['Groups'] = {'all'}, -- 'all', 'admin', 'god', 'mod'
+                ['Event'] = 'Admin:Businesses:SetLogo',
+                ['Collapse'] = true,
+                ['Options'] = {
+                    {
+                        ['Id'] = 'name',
+                        ['Name'] = 'Business',
+                        ['Type'] = 'input-choice',
+                        ['Choices'] = GetBusinesses(),
+                    },
+                    {
+                        ['Id'] = 'logo',
+                        ['Name'] = 'Business Logo (Font Awesome: eg. fas fa-car)',
+                        ['Type'] = 'input',
+                        ['InputType'] = 'text',
+                    },
+                },
+            },
+            {
+                ['Id'] = 'add_business_employee',
+                ['Name'] = 'Add Business Employee',
+                ['UseKVPGroups'] = true, 
+                -- Below Groups Table will not be used when Option above is enabled. 
+                -- Command Groups will be handled by KVP and can be changed thru a command ingame: menuperms [add,remove,list] [commandid] [group]
+                ['Groups'] = {'all'}, -- 'all', 'admin', 'god', 'mod'
+                ['Event'] = 'Admin:Businesses:AddEmployee',
+                ['Collapse'] = true,
+                ['Options'] = {
+                    {
+                        ['Id'] = 'player',
+                        ['Name'] = 'Target (Not Required)',
+                        ['Type'] = 'input-choice',
+                        ['PlayerList'] = true,
+                    },
+                    {
+                        ['Id'] = 'name',
+                        ['Name'] = 'Business',
+                        ['Type'] = 'input-choice',
+                        ['Choices'] = GetBusinesses(),
+                    },
+                    {
+                        ['Id'] = 'rank',
+                        ['Name'] = 'Rank',
+                        ['Type'] = 'input',
+                        ['InputType'] = 'text',
                     },
                 },
             },
@@ -238,7 +364,7 @@ Config.CommandList = {
                 ['Options'] = {
                     {
                         ['Id'] = 'player',
-                        ['Name'] = 'Player',
+                        ['Name'] = 'Target (Not Required)',
                         ['Type'] = 'input-choice',
                         ['PlayerList'] = true,
                     },
@@ -256,7 +382,7 @@ Config.CommandList = {
                 ['Options'] = {
                     {
                         ['Id'] = 'player',
-                        ['Name'] = 'Player',
+                        ['Name'] = 'Target (Not Required)',
                         ['Type'] = 'input-choice',
                         ['PlayerList'] = true,
                     },
@@ -274,7 +400,7 @@ Config.CommandList = {
                 ['Options'] = {
                     {
                         ['Id'] = 'player',
-                        ['Name'] = 'Player',
+                        ['Name'] = 'Target (Not Required)',
                         ['Type'] = 'input-choice',
                         ['PlayerList'] = true,
                     },
@@ -292,7 +418,7 @@ Config.CommandList = {
                 ['Options'] = {
                     {
                         ['Id'] = 'player',
-                        ['Name'] = 'Player',
+                        ['Name'] = 'Target (Not Required)',
                         ['Type'] = 'input-choice',
                         ['PlayerList'] = true,
                     },
@@ -310,7 +436,7 @@ Config.CommandList = {
                 ['Options'] = {
                     {
                         ['Id'] = 'player',
-                        ['Name'] = 'Player',
+                        ['Name'] = 'Target (Not Required)',
                         ['Type'] = 'input-choice',
                         ['PlayerList'] = true,
                     },
@@ -328,7 +454,7 @@ Config.CommandList = {
                 ['Options'] = {
                     {
                         ['Id'] = 'player',
-                        ['Name'] = 'Player',
+                        ['Name'] = 'Target (Not Required)',
                         ['Type'] = 'input-choice',
                         ['PlayerList'] = true,
                     },
@@ -438,7 +564,7 @@ Config.CommandList = {
                 ['Options'] = {
                     {
                         ['Id'] = 'player',
-                        ['Name'] = 'Player',
+                        ['Name'] = 'Target (Not Required)',
                         ['Type'] = 'input-choice',
                         ['PlayerList'] = true,
                     },
@@ -467,6 +593,24 @@ Config.CommandList = {
                 ['Event'] = 'mc-admin/server/teleport-all',
                 ['EventType'] = 'Server',
                 ['Collapse'] = false,
+            },
+            {
+                ['Id'] = 'toggleCoords',
+                ['Name'] = 'Toggle Coords',
+                ['UseKVPGroups'] = true, 
+                -- Below Groups Table will not be used when Option above is enabled. 
+                -- Command Groups will be handled by KVP and can be changed thru a command ingame: menuperms [add,remove,list] [commandid] [group]
+                ['Groups'] = {'all'}, -- 'all', 'admin', 'god', 'mod'
+                ['Event'] = 'Admin:Coords:Toggle',
+                ['Collapse'] = true,
+                ['Options'] = {
+                    {
+                        ['Id'] = 'player',
+                        ['Name'] = 'Target (Not Required)',
+                        ['Type'] = 'input-choice',
+                        ['PlayerList'] = true,
+                    },
+                },
             },
             {
                 ['Id'] = 'teleportCoords',
@@ -602,7 +746,7 @@ Config.CommandList = {
             --     ['Options'] = {
             --         {
             --             ['Id'] = 'player',
-            --             ['Name'] = 'Player',
+            --             ['Name'] = 'Target (Not Required)',
             --             ['Type'] = 'input-choice',
             --             ['PlayerList'] = true,
             --         },
@@ -626,7 +770,7 @@ Config.CommandList = {
                 ['Options'] = {
                     {
                         ['Id'] = 'player',
-                        ['Name'] = 'Player',
+                        ['Name'] = 'Target (Not Required)',
                         ['Type'] = 'input-choice',
                         ['PlayerList'] = true,
                     },
@@ -650,7 +794,7 @@ Config.CommandList = {
                 ['Options'] = {
                     {
                         ['Id'] = 'player',
-                        ['Name'] = 'Player',
+                        ['Name'] = 'Target (Not Required)',
                         ['Type'] = 'input-choice',
                         ['PlayerList'] = true,
                     },
@@ -680,7 +824,7 @@ Config.CommandList = {
                 ['Options'] = {
                     {
                         ['Id'] = 'player',
-                        ['Name'] = 'Player',
+                        ['Name'] = 'Target (Not Required)',
                         ['Type'] = 'input-choice',
                         ['PlayerList'] = true,
                     },
@@ -710,7 +854,7 @@ Config.CommandList = {
                 ['Options'] = {
                     {
                         ['Id'] = 'player',
-                        ['Name'] = 'Player',
+                        ['Name'] = 'Target (Not Required)',
                         ['Type'] = 'input-choice',
                         ['PlayerList'] = true,
                     },
@@ -740,10 +884,52 @@ Config.CommandList = {
                 ['Options'] = {
                     {
                         ['Id'] = 'player',
-                        ['Name'] = 'Player',
+                        ['Name'] = 'Target (Not Required)',
                         ['Type'] = 'input-choice',
                         ['PlayerList'] = true,
                     },
+                },
+            },
+            {
+                ['Id'] = 'refreshPermissions',
+                ['Name'] = 'Refresh Permissions',
+                ['UseKVPGroups'] = false, 
+                -- Below Groups Table will not be used when Option above is enabled. 
+                -- Command Groups will be handled by KVP and can be changed thru a command ingame: menuperms [add,remove,list] [commandid] [group]
+                ['Groups'] = {'admin', 'god'}, -- 'all', 'admin', 'god', 'mod'
+                ['Event'] = 'Admin:Permissions:Refresh',
+                ['Collapse'] = true,
+                ['Options'] = {
+                    {
+                        ['Id'] = 'player',
+                        ['Name'] = 'Target (Not Required)',
+                        ['Type'] = 'input-choice',
+                        ['PlayerList'] = true,
+                    },
+                },
+            },
+            {
+                ['Id'] = 'setPermissions',
+                ['Name'] = 'Set Permissions',
+                ['UseKVPGroups'] = false, 
+                -- Below Groups Table will not be used when Option above is enabled. 
+                -- Command Groups will be handled by KVP and can be changed thru a command ingame: menuperms [add,remove,list] [commandid] [group]
+                ['Groups'] = {'god'}, -- 'all', 'admin', 'god', 'mod'
+                ['Event'] = 'Admin:Permissions:Set',
+                ['Collapse'] = true,
+                ['Options'] = {
+                    {
+                        ['Id'] = 'player',
+                        ['Name'] = 'Target (Not Required)',
+                        ['Type'] = 'input-choice',
+                        ['PlayerList'] = true,
+                    },
+                    {
+                        ['Id'] = 'group',
+                        ['Name'] = 'Group',
+                        ['Type'] = 'input-choice',
+                        ['Choices'] = GetPlayerGroups()
+                    }
                 },
             },
             {
@@ -758,7 +944,7 @@ Config.CommandList = {
                 ['Options'] = {
                     {
                         ['Id'] = 'player',
-                        ['Name'] = 'Player',
+                        ['Name'] = 'Target (Not Required)',
                         ['Type'] = 'input-choice',
                         ['PlayerList'] = true,
                     },
@@ -810,7 +996,7 @@ Config.CommandList = {
                 ['Options'] = {
                     {
                         ['Id'] = 'player',
-                        ['Name'] = 'Player',
+                        ['Name'] = 'Target (Not Required)',
                         ['Type'] = 'input-choice',
                         ['Choices'] = {}
                     },
@@ -828,9 +1014,9 @@ Config.CommandList = {
                 ['Options'] = {
                     {
                         ['Id'] = 'player',
-                        ['Name'] = 'Player',
+                        ['Name'] = 'Target (Not Required)',
                         ['Type'] = 'input-choice',
-                        ['Choices'] = {}
+                        ['PlayerList'] = true,
                     },
                     {
                         ['Id'] = 'amount',
@@ -852,7 +1038,7 @@ Config.CommandList = {
                 ['Options'] = {
                     {
                         ['Id'] = 'player',
-                        ['Name'] = 'Player',
+                        ['Name'] = 'Target (Not Required)',
                         ['Type'] = 'input-choice',
                         ['PlayerList'] = true,
                     },
@@ -895,7 +1081,102 @@ Config.CommandList = {
                 ['Options'] = {
                     {
                         ['Id'] = 'player',
-                        ['Name'] = 'Player',
+                        ['Name'] = 'Target (Not Required)',
+                        ['Type'] = 'input-choice',
+                        ['PlayerList'] = true,
+                    },
+                }
+            },
+            {
+                ['Id'] = 'veh_devmode',
+                ['Name'] = 'Vehicle Dev Mode',
+                ['UseKVPGroups'] = true, 
+                -- Below Groups Table will not be used when Option above is enabled. 
+                -- Command Groups will be handled by KVP and can be changed thru a command ingame: menuperms [add,remove,list] [commandid] [group]
+                ['Groups'] = {'all'}, -- 'all', 'admin', 'god', 'mod'
+                ['Event'] = 'Admin:Toggle:VehDevMode',
+                ['EventType'] = 'Client',
+                ['Collapse'] = true,
+                ['Options'] = {
+                    {
+                        ['Id'] = 'player',
+                        ['Name'] = 'Target (Not Required)',
+                        ['Type'] = 'input-choice',
+                        ['PlayerList'] = true,
+                    },
+                }
+            },
+            {
+                ['Id'] = 'object_view',
+                ['Name'] = 'Object Debug',
+                ['UseKVPGroups'] = true, 
+                -- Below Groups Table will not be used when Option above is enabled. 
+                -- Command Groups will be handled by KVP and can be changed thru a command ingame: menuperms [add,remove,list] [commandid] [group]
+                ['Groups'] = {'all'}, -- 'all', 'admin', 'god', 'mod'
+                ['Event'] = 'Admin:Toggle:ObjectView',
+                ['EventType'] = 'Client',
+                ['Collapse'] = true,
+                ['Options'] = {
+                    {
+                        ['Id'] = 'player',
+                        ['Name'] = 'Target (Not Required)',
+                        ['Type'] = 'input-choice',
+                        ['PlayerList'] = true,
+                    },
+                }
+            },
+            {
+                ['Id'] = 'ped_view',
+                ['Name'] = 'Ped Debug',
+                ['UseKVPGroups'] = true, 
+                -- Below Groups Table will not be used when Option above is enabled. 
+                -- Command Groups will be handled by KVP and can be changed thru a command ingame: menuperms [add,remove,list] [commandid] [group]
+                ['Groups'] = {'all'}, -- 'all', 'admin', 'god', 'mod'
+                ['Event'] = 'Admin:Toggle:PedView',
+                ['EventType'] = 'Client',
+                ['Collapse'] = true,
+                ['Options'] = {
+                    {
+                        ['Id'] = 'player',
+                        ['Name'] = 'Target (Not Required)',
+                        ['Type'] = 'input-choice',
+                        ['PlayerList'] = true,
+                    },
+                }
+            },
+            {
+                ['Id'] = 'veh_view',
+                ['Name'] = 'Vehicle Debug',
+                ['UseKVPGroups'] = true, 
+                -- Below Groups Table will not be used when Option above is enabled. 
+                -- Command Groups will be handled by KVP and can be changed thru a command ingame: menuperms [add,remove,list] [commandid] [group]
+                ['Groups'] = {'all'}, -- 'all', 'admin', 'god', 'mod'
+                ['Event'] = 'Admin:Toggle:VehView',
+                ['EventType'] = 'Client',
+                ['Collapse'] = true,
+                ['Options'] = {
+                    {
+                        ['Id'] = 'player',
+                        ['Name'] = 'Target (Not Required)',
+                        ['Type'] = 'input-choice',
+                        ['PlayerList'] = true,
+                    },
+                }
+            },
+            {
+                ['Id'] = 'entity_freeaim',
+                ['Name'] = 'Entity Free Aim Debug',
+                ['UseKVPGroups'] = true, 
+                -- Below Groups Table will not be used when Option above is enabled. 
+                -- Command Groups will be handled by KVP and can be changed thru a command ingame: menuperms [add,remove,list] [commandid] [group]
+                ['Groups'] = {'all'}, -- 'all', 'admin', 'god', 'mod'
+                ['Event'] = 'Admin:Toggle:EntityFreeAim',
+                ['EventType'] = 'Client',
+                ['Collapse'] = true,
+                ['Options'] = {
+                    {
+                        ['Id'] = 'player',
+                        ['Name'] = 'Target (Not Required)',
                         ['Type'] = 'input-choice',
                         ['PlayerList'] = true,
                     },
@@ -920,7 +1201,7 @@ Config.CommandList = {
                 ['Options'] = {
                     {
                         ['Id'] = 'player',
-                        ['Name'] = 'Player',
+                        ['Name'] = 'Target (Not Required)',
                         ['Type'] = 'input-choice',
                         ['PlayerList'] = true,
                     },
@@ -938,7 +1219,7 @@ Config.CommandList = {
                 ['Options'] = {
                     {
                         ['Id'] = 'player',
-                        ['Name'] = 'Player',
+                        ['Name'] = 'Target (Not Required)',
                         ['Type'] = 'input-choice',
                         ['PlayerList'] = true,
                     },
@@ -956,7 +1237,7 @@ Config.CommandList = {
                 ['Options'] = {
                     {
                         ['Id'] = 'player',
-                        ['Name'] = 'Player',
+                        ['Name'] = 'Target (Not Required)',
                         ['Type'] = 'input-choice',
                         ['PlayerList'] = true,
                     },
@@ -974,7 +1255,7 @@ Config.CommandList = {
                 ['Options'] = {
                     {
                         ['Id'] = 'player',
-                        ['Name'] = 'Player',
+                        ['Name'] = 'Target (Not Required)',
                         ['Type'] = 'input-choice',
                         ['PlayerList'] = true,
                     },
@@ -992,7 +1273,7 @@ Config.CommandList = {
                 ['Options'] = {
                     {
                         ['Id'] = 'player',
-                        ['Name'] = 'Player',
+                        ['Name'] = 'Target (Not Required)',
                         ['Type'] = 'input-choice',
                         ['PlayerList'] = true,
                     },

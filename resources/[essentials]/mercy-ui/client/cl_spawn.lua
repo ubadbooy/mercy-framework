@@ -44,9 +44,13 @@ RegisterNetEvent('mercy-spawn/client/open-spawn-selector', function()
         })
     
         local Locations = {}
-        local PlayerData = exports['mercy-base']:FetchModule('Player').GetPlayerData()
+        local PlayerData = PlayerModule.GetPlayerData()
+        while PlayerData == nil do
+            PlayerData = PlayerModule.GetPlayerData()
+            Wait(100)
+        end
         
-        if PlayerData.MetaData['Jail'] > 0 then
+        if PlayerData.MetaData['Jail'] ~= nil and PlayerData.MetaData['Jail'] >= 1 then
             SendUIMessage('Spawn', 'SetupSpawns', {
                 Spawns = {
                     {
@@ -60,6 +64,7 @@ RegisterNetEvent('mercy-spawn/client/open-spawn-selector', function()
             return
         end
 
+        -- Own Houses
         local Houses = exports['mercy-housing']:GetHouseConfig()
         for k, v in pairs(Houses) do
             if GetSpawnData('house_'..v.Name) == nil then
@@ -75,7 +80,7 @@ RegisterNetEvent('mercy-spawn/client/open-spawn-selector', function()
         end
 
         local FavoriteSpawnLoc = GetResourceKvpString("spawn_favorite")
-        -- Houses
+        -- Keyholder Houses
         local Result = CallbackModule.SendCallback('mercy-houses/server/get-houses-keyholder', PlayerData.CitizenId)
         for k, v in pairs(Result) do
             table.insert(Locations, {
@@ -90,13 +95,15 @@ RegisterNetEvent('mercy-spawn/client/open-spawn-selector', function()
         -- Locations
         for k, v in pairs(Config.Locations) do
             if not v.Hidden then
-                table.insert(Locations, {
-                    Id = v.Id,
-                    Name = v.Name,
-                    Icon = v.Icon,
-                    Coords = { X = v.Coords.X, Y = v.Coords.Y },
-                    Favorited = FavoriteSpawnLoc ~= nil and FavoriteSpawnLoc == v.Id or false,
-                })
+                if v.Id ~= 'last_location' then
+                    table.insert(Locations, {
+                        Id = v.Id,
+                        Name = v.Name,
+                        Icon = v.Icon,
+                        Coords = { X = v.Coords.X, Y = v.Coords.Y },
+                        Favorited = FavoriteSpawnLoc ~= nil and FavoriteSpawnLoc == v.Id or false,
+                    })
+                end
             end
         end
 
@@ -105,7 +112,7 @@ RegisterNetEvent('mercy-spawn/client/open-spawn-selector', function()
             table.insert(Locations, {
                 Id = 'last_location',
                 Name = 'Last Location',
-                Icon = 'fas fa-location-crosshairs',
+                Icon = 'fas fa-map-pin',
                 Coords = { X = PlayerData.Position.x, Y =  PlayerData.Position.y },
             })
         end
@@ -181,6 +188,12 @@ RegisterNUICallback('Spawn/SelectSpawn', function(Data, Cb)
     
     if SpawnData == nil then print("No SpawnData") return end
 
+    local PlayerData = exports['mercy-base']:FetchModule('Player').GetPlayerData()
+    while PlayerData == nil do
+        PlayerData = exports['mercy-base']:FetchModule('Player').GetPlayerData()
+	Wait(100)
+    end
+		
     if SpawnData.Type == 'Location' then
         EventsModule.TriggerServer("mercy-base/server/bucketmanager/set-routing-bucket", 0)
         SetEntityCoords(PlayerPedId(), SpawnData.Coords.X, SpawnData.Coords.Y, SpawnData.Coords.Z)
@@ -228,7 +241,7 @@ RegisterNUICallback('Spawn/SelectSpawn', function(Data, Cb)
         Citizen.SetTimeout(500, function()
             FreezeEntityPosition(PlayerPedId(), false)
             Citizen.Wait(1250)
-            TriggerEvent('mercy-police/client/enter-jail', 0, 0, true)
+            TriggerEvent('mercy-police/client/enter-jail', PlayerData.MetaData['Jail'], 0, true)
         end)
     elseif SpawnData.Type == 'House' then
         EventsModule.TriggerServer("mercy-base/server/bucketmanager/set-routing-bucket", 0)

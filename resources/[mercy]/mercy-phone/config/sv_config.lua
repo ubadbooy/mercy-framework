@@ -1,5 +1,7 @@
 ServerConfig = ServerConfig or {}
 
+ServerConfig.Debug = false
+
 ServerConfig.Networks = {
     ["old_bennys"] = {
         vector2(-227.96325683594, -1320.5069580078),
@@ -58,6 +60,8 @@ ServerConfig.Jobs = {
         ["Location"] = vector4(-352.17, -1545.7, 26.72, 269.89),
         ["RequiresVPN"] = false,
         ['Money'] = math.random(500, 800),
+        ['MaxGroupCount'] = 5, -- Max group count for job
+        ['MaxMembers'] = 4, -- Max members per group for job
         -- Don't touch
         ["GroupCount"] = 0,
         ["EmployeeCount"] = 0,
@@ -75,6 +79,8 @@ ServerConfig.Jobs = {
         ["Name"] = "fishing",
         ["Location"] = vector4(-334.38, 6105.08, 30.45, 225.46),
         ["RequiresVPN"] = false,
+        ['MaxGroupCount'] = 5,
+        ['MaxMembers'] = 5,
         -- Don't touch
         ["GroupCount"] = 0,
         ["EmployeeCount"] = 0,
@@ -92,6 +98,8 @@ ServerConfig.Jobs = {
         ["Name"] = "oxy",
         ["Location"] = vector4(1701.52, 4857.86, 40.03, 278.46),
         ["RequiresVPN"] = true,
+        ['MaxGroupCount'] = 5,
+        ['MaxMembers'] = 2,
         -- Don't touch
         ["GroupCount"] = 0,
         ["EmployeeCount"] = 0,
@@ -109,6 +117,8 @@ ServerConfig.Jobs = {
         ["Name"] = "houses",
         ["Location"] = vector4(-969.73, 524.84, 80.47, 147.54),
         ["RequiresVPN"] = true,
+        ['MaxGroupCount'] = 5,
+        ['MaxMembers'] = 2,
         -- Don't touch
         ["GroupCount"] = 0,
         ["EmployeeCount"] = 0,
@@ -127,6 +137,8 @@ ServerConfig.Jobs = {
         ["Location"] = vector4(929.94, -1249.29, 24.5, 34.19),
         ["RequiresVPN"] = false,
         ['Money'] = math.random(2500, 2900),
+        ['MaxGroupCount'] = 5,
+        ['MaxMembers'] = 2,
         -- Don't touch
         ["GroupCount"] = 0,
         ["EmployeeCount"] = 0,
@@ -144,6 +156,7 @@ ServerConfig.DarkItems = {
         Icon = 'fas fa-user-secret',
         Name = 'VPN',
         Label = 'VPN',
+        Hidden = false,
         Payment = {
             Amount = 20,
             Label = 'Shungite'
@@ -159,8 +172,25 @@ ServerConfig.DarkItems = {
         Icon = 'fas fa-clipboard-list',
         Name = 'darkmarketdeliveries',
         Label = 'Delivery List',
+        Hidden = false,
         Payment = {
             Amount = 10,
+            Label = 'Shungite'
+        },
+        DropOffs = {
+            {
+                Label = 'Drop Off 1',
+                Coords = vector3(508.83, 3099.87, 41.31),
+            },
+        },
+    },
+    {
+        Icon = 'fas fa-laptop',
+        Name = 'heist-laptop-green',
+        Label = 'Laptop Green',
+        Hidden = true, -- Hide from phone market
+        Payment = {
+            Amount = 15,
             Label = 'Shungite'
         },
         DropOffs = {

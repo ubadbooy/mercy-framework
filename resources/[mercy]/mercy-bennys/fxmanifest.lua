@@ -2,6 +2,9 @@ fx_version 'cerulean'
 game 'gta5'
 
 lua54 'yes'
+use_experimental_fxv2_oal 'yes'
+
+ui_page 'nui/index.html'
 
 shared_scripts {
     'shared/sh_*.lua',
@@ -13,21 +16,19 @@ client_script {
     'client/*.lua',
 }
 
-server_script {
+server_scripts {
     '@mercy-assets/server/sv_errorlog.lua',
-    -- 'configs/sh_*.lua',
-    -- 'server/*.lua',
+    'server/*.lua',
 }
 
-ui_page 'nui/index.html'
 files {
-    '@mercy-ui/nui/fonts/gta.ttf',
-    '@mercy-ui/nui/fonts/pricedown.ttf',
-    '@mercy-ui/nui/fonts/tvnord.ttf',
-    '@mercy-ui/nui/css/colors.css',
-    '@mercy-ui/nui/Apps/Styles/css/main.css',
     'nui/index.html',
     'nui/images/*.png',
     'nui/css/*.css',
     'nui/js/*.js',
+    "data/*.meta",
+    "data/*.ymt",
 }
+
+data_file "CARCOLS_GEN9_FILE" "data/carcols_gen9.meta"
+data_file "CARMODCOLS_GEN9_FILE" "data/carmodcols_gen9.meta"

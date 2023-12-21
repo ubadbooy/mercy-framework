@@ -28,6 +28,7 @@ Config.DefaultRanks = {
             ['property_keys'] = true,
             ['stash_access'] = true,
             ['craft_access'] = true,
+            ['account_access'] = true,
         }
     },
     ['Employee'] = {
@@ -43,6 +44,7 @@ Config.DefaultRanks = {
             ['property_keys'] = true,
             ['stash_access'] = false,
             ['craft_access'] = false,
+            ['account_access'] = false,
         }
     },
 }
@@ -52,6 +54,11 @@ Config.DefaultRanks = {
 Config.FoodChainLocations = {
     ['Burger Shot'] = vector3(-1196.12, -894.95, 13.98),
     ['UwU Café'] = vector3(-581.79, -1059.72, 22.34)
+}
+
+Config.ActiveEmployees = {
+    ['Burger Shot'] = {},
+    ['UwU Café'] = {}
 }
 
 Config.ActivePayments = {
@@ -98,7 +105,7 @@ Config.FoodChainDishes = {
     },
 }
 
--- [ Gallery
+-- [ Gallery ] --
 
 Config.GemColors = {
     ['Jade'] = 92,  -- 53 92
@@ -109,7 +116,7 @@ Config.GemColors = {
     ['Aquamarine'] = 74,
 }
 
--- [ Digital Den
+-- [ Digital Den ] --
 
 Config.DigitalCrafting = {
     {

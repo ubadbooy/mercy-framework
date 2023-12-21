@@ -1,4 +1,4 @@
-PlayerModule, EventsModule, FunctionModule, VehicleModule = nil, nil, nil, nil
+PlayerModule, EventsModule, FunctionModule, VehicleModule, CallbackModule = nil
 local HospitalBedCam = nil
 
 AddEventHandler('Modules/client/ready', function()
@@ -9,14 +9,12 @@ AddEventHandler('Modules/client/ready', function()
         'Vehicle',
         'Callback',
     }, function(Succeeded)
-        
         if not Succeeded then return end
         PlayerModule = exports['mercy-base']:FetchModule('Player')
         EventsModule = exports['mercy-base']:FetchModule('Events')
         FunctionModule = exports['mercy-base']:FetchModule('Functions')
         VehicleModule = exports['mercy-base']:FetchModule('Vehicle')
         CallbackModule = exports['mercy-base']:FetchModule('Callback')
-
     end)
 end)
 
@@ -41,25 +39,27 @@ end)
 
 Citizen.CreateThread(function()
     while true do
-        Citizen.Wait(4)
+        Citizen.Wait(5)
         if LocalPlayer.state.LoggedIn then
-            TriggerEvent('mercy-hospital/client/save-armor')
             Citizen.Wait(3500)
+            TriggerEvent('mercy-hospital/client/save-vitals')
         else
             Citizen.Wait(450) 
         end
     end
-end)    
+end)
 
 -- [ Events ] --
 
 RegisterNetEvent('mercy-hospital/client/kill-player', function()
     SetEntityHealth(PlayerPedId(), 0)
+    SetEntityMaxHealth(PlayerPedId(), 200)
 end)
 
-RegisterNetEvent("mercy-hospital/client/save-armor", function()
+RegisterNetEvent("mercy-hospital/client/save-vitals", function()
     local Armor = GetPedArmour(PlayerPedId())
-    TriggerServerEvent('mercy-hospital/server/save-armor', Armor)
+    local Health = GetEntityHealth(PlayerPedId())
+    TriggerServerEvent('mercy-hospital/server/save-vitals', Armor, Health)
 end)
 
 RegisterNetEvent('mercy-hospital/client/set-hospital-bed-busy', function(BedId, Bool)
@@ -99,10 +99,12 @@ end)
 
 RegisterNetEvent('mercy-hospital/client/send-to-bed', function(BedId)
     Citizen.SetTimeout(50, function()
+        TriggerEvent('mercy-assets/client/attach-items')
         EnterHospitalBed(BedId)
         TriggerServerEvent('mercy-hospital/server/set-hospital-bed-busy', BedId, true)
         Citizen.Wait(25000)
         LeaveHospitalBed(BedId)
+        EventsModule.TriggerServer('mercy-hospital/server/reset-vitals')
         TriggerEvent('mercy-hospital/client/revive', false)
         TriggerServerEvent('mercy-hospital/server/set-hospital-bed-busy', BedId, false)
     end)
@@ -186,6 +188,8 @@ function InitHospital()
             EventsModule.TriggerServer('mercy-hospital/server/set-dead-state', true)
             TriggerEvent('mercy-hospital/client/do-dead-on-player', true)
         else
+            SetEntityMaxHealth(PlayerPedId(), 200)
+            SetEntityHealth(PlayerPedId(), Player.MetaData['Health'])
             SetPedArmour(PlayerPedId(), Player.MetaData['Armor'])
         end
     end)

@@ -130,7 +130,7 @@ Config.Animations = {
         ['Dict'] = 'anim@heists@box_carry@',
         ['Animation'] = 'idle',
         ['Moving'] = true,
-        ['Looping'] = true,
+        ['Looping'] = false,
         ['Hidden'] = false
     },
     -- C
@@ -1426,6 +1426,16 @@ Config.Animations = {
         ['Hidden'] = false,
     },
     {
+        ['Id'] = 'mechanic4',
+        ['Name'] = 'Mechanic #4',
+        ['Type'] = 'Animation',
+        ['Dict'] = 'anim@amb@clubhouse@tutorial@bkr_tut_ig3@',
+        ['Animation'] = 'machinic_loop_mechandplayer',
+        ['Looping'] = true,
+        ['Moving'] = false,
+        ['Hidden'] = false,
+    },
+    {
         ['Id'] = 'meditate',
         ['Name'] = 'Meditate #1',
         ['Type'] = 'Animation',
@@ -1466,6 +1476,16 @@ Config.Animations = {
         ['Hidden'] = false,
     },
     -- N
+    {
+        ['Id'] = 'notepad',
+        ['Name'] = 'Notepad',
+        ['Type'] = 'Animation',
+        ['Dict'] = 'amb@medic@standing@timeofdeath@base',
+        ['Animation'] = 'base',
+        ['Moving'] = true,
+        ['Looping'] = true,
+        ['Hidden'] = false
+    },
     {
         ['Id'] = 'no',
         ['Name'] = 'No #1',

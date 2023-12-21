@@ -23,20 +23,18 @@ Shared.RandomInt = function(Length)
 	end
 end
 
-Shared.ServerDebug = true
-
-Shared.InventoryMaxWeight = 250.0
-
 Shared.Tax = {
     ['Property'] = 15, -- +15% of the price
     ['Vehicle'] = 49, -- +49% of the price
     ['Goods'] = 15, -- +15% of the price
     ['Clothes'] = 15, -- +15% of the prices,
+    ['Gas'] = 17, -- +17% of the price
 }
 
-Shared.DefaultCrypto = {
-    ['shungite'] = 0.00,
-    ['guinea'] = 0.00,
+Shared.Groups = {
+    ['user'] = 'User',
+    ['admin'] = 'Admin',
+    ['god'] = 'God'
 }
 
 Shared.Cryptos = {
@@ -467,6 +465,24 @@ Shared.Weapons = {
         ['SelectFire'] = false,
         ['MaxAmmo'] = 0,
     },
+    [GetHashKey('weapon_smokegrenade')] = {
+        ['WeaponID'] = 'weapon_stickybomb',  
+        ['AmmoType'] = 'AMMO_FIRE',
+        ['SelectFire'] = false,
+        ['MaxAmmo'] = 0,
+    },
+    [GetHashKey('weapon_flare')] = {
+        ['WeaponID'] = 'weapon_flare',  
+        ['AmmoType'] = 'AMMO_FIRE',
+        ['SelectFire'] = false,
+        ['MaxAmmo'] = 0,
+    },
+    [GetHashKey('weapon_molotov')] = {
+        ['WeaponID'] = 'weapon_molotov',  
+        ['AmmoType'] = 'AMMO_FIRE',
+        ['SelectFire'] = false,
+        ['MaxAmmo'] = 0,
+    },
 }
 
 --[[
@@ -489,6 +505,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Bicycle',
         ['Price'] = 750,
+        ['CanBoost'] = false,
     },
     [GetHashKey('bmx')] = {
         ['Vehicle'] = 'bmx',
@@ -499,6 +516,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Bicycle',
         ['Price'] = 450,
+        ['CanBoost'] = false,
     },
     [GetHashKey('cruiser')] = {
         ['Vehicle'] = 'cruiser',
@@ -509,6 +527,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Bicycle',
         ['Price'] = 250,
+        ['CanBoost'] = false,
     },
     [GetHashKey('scorcher')] = {
         ['Vehicle'] = 'scorcher',
@@ -519,6 +538,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Bicycle',
         ['Price'] = 750,
+        ['CanBoost'] = false,
     },
     -- Compacts
     [GetHashKey('asbo')] = {
@@ -530,6 +550,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 36550,
+        ['CanBoost'] = true,
     },
     [GetHashKey('blista')] = {
         ['Vehicle'] = 'blista',
@@ -540,6 +561,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 33500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('brioso')] = {
         ['Vehicle'] = 'brioso',
@@ -550,6 +572,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 36500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('brioso2')] = {
         ['Vehicle'] = 'brioso2',
@@ -560,6 +583,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 38500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('rhapsody')] = {
         ['Vehicle'] = 'rhapsody',
@@ -570,6 +594,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 35500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('prairie')] = {
         ['Vehicle'] = 'prairie',
@@ -580,6 +605,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 34500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('kanjo')] = {
         ['Vehicle'] = 'kanjo',
@@ -590,6 +616,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 36550,
+        ['CanBoost'] = true,
     },
     [GetHashKey('panto')] = {
         ['Vehicle'] = 'panto',
@@ -600,6 +627,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 27550,
+        ['CanBoost'] = true,
     },
     [GetHashKey('weevil')] = {
         ['Vehicle'] = 'weevil',
@@ -610,6 +638,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 37450,
+        ['CanBoost'] = true,
     },
     [GetHashKey('dynasty')] = {
         ['Vehicle'] = 'dynasty',
@@ -620,6 +649,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 38550,
+        ['CanBoost'] = true,
     },
     -- Motorcycles
     [GetHashKey('akuma')] = {
@@ -631,6 +661,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Motorcycle',
         ['Price'] = 45500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('bagger')] = {
         ['Vehicle'] = 'bagger',
@@ -641,6 +672,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Motorcycle',
         ['Price'] = 35000,
+        ['CanBoost'] = true,
     },
     [GetHashKey('bati')] = {
         ['Vehicle'] = 'bati',
@@ -651,6 +683,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Motorcycle',
         ['Price'] = 35000,
+        ['CanBoost'] = true,
     },
     [GetHashKey('bf400')] = {
         ['Vehicle'] = 'bf400',
@@ -661,6 +694,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Motorcycle',
         ['Price'] = 45500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('cliffhanger')] = {
         ['Vehicle'] = 'cliffhanger',
@@ -671,6 +705,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Motorcycle',
         ['Price'] = 38450,
+        ['CanBoost'] = true,
     },
     [GetHashKey('daemon')] = {
         ['Vehicle'] = 'daemon',
@@ -681,6 +716,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Motorcycle',
         ['Price'] = 35000,
+        ['CanBoost'] = true,
     },
     [GetHashKey('avarus')] = {
         ['Vehicle'] = 'avarus',
@@ -691,6 +727,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Motorcycle',
         ['Price'] = 50000,
+        ['CanBoost'] = false,
     },
     [GetHashKey('sanchez')] = {
         ['Vehicle'] = 'sanchez',
@@ -701,6 +738,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Motorcycle',
         ['Price'] = 45000,
+        ['CanBoost'] = true,
     },
     [GetHashKey('double')] = {
         ['Vehicle'] = 'double',
@@ -711,6 +749,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Motorcycle',
         ['Price'] = 51500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('faggio')] = {
         ['Vehicle'] = 'faggio',
@@ -721,6 +760,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Motorcycle',
         ['Price'] = 5500,
+        ['CanBoost'] = false,
     },
     [GetHashKey('faggio2')] = {
         ['Vehicle'] = 'faggio2',
@@ -731,6 +771,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Motorcycle',
         ['Price'] = 9500,
+        ['CanBoost'] = false,
     },
     -- Muscle
     [GetHashKey('blade')] = {
@@ -742,6 +783,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 40000,
+        ['CanBoost'] = true,
     },
     [GetHashKey('buccaneer')] = {
         ['Vehicle'] = 'buccaneer',
@@ -752,6 +794,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 39500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('chino')] = {
         ['Vehicle'] = 'chino',
@@ -762,6 +805,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 41000,
+        ['CanBoost'] = true,
     },
     [GetHashKey('coquette3')] = {
         ['Vehicle'] = 'coquette3',
@@ -772,6 +816,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 45500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('dominator')] = {
         ['Vehicle'] = 'dominator',
@@ -782,6 +827,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 42500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('dominator3')] = {
         ['Vehicle'] = 'dominator3',
@@ -792,6 +838,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 58500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('dukes')] = {
         ['Vehicle'] = 'dukes',
@@ -802,6 +849,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 37500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('virgo2')] = {
         ['Vehicle'] = 'virgo2',
@@ -812,6 +860,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 36500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('voodoo')] = {
         ['Vehicle'] = 'voodoo',
@@ -822,6 +871,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 35500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('faction')] = {
         ['Vehicle'] = 'faction',
@@ -832,6 +882,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 36500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('faction3')] = {
         ['Vehicle'] = 'faction3',
@@ -842,6 +893,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 50500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('moonbeam')] = {
         ['Vehicle'] = 'moonbeam',
@@ -852,6 +904,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 51500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('ratloader')] = {
         ['Vehicle'] = 'ratloader',
@@ -862,6 +915,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 47500,
+        ['CanBoost'] = false,
     },
     [GetHashKey('slamvan')] = {
         ['Vehicle'] = 'slamvan',
@@ -872,6 +926,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 47500,
+        ['CanBoost'] = false,
     },
     -- Off-Road
     [GetHashKey('bfinjection')] = {
@@ -883,6 +938,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 50000,
+        ['CanBoost'] = false,
     },
     [GetHashKey('bifta')] = {
         ['Vehicle'] = 'bifta',
@@ -893,6 +949,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 35000,
+        ['CanBoost'] = false,
     },
     [GetHashKey('dune')] = {
         ['Vehicle'] = 'dune',
@@ -903,6 +960,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 34500,
+        ['CanBoost'] = false,
     },
     [GetHashKey('hellion')] = {
         ['Vehicle'] = 'hellion',
@@ -913,6 +971,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 68000,
+        ['CanBoost'] = true,
     },
     [GetHashKey('blazer')] = {
         ['Vehicle'] = 'blazer',
@@ -923,6 +982,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 15000,
+        ['CanBoost'] = false,
     },
     [GetHashKey('bodhi2')] = {
         ['Vehicle'] = 'bodhi2',
@@ -933,6 +993,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 45000,
+        ['CanBoost'] = false,
     },
     [GetHashKey('kalahari')] = {
         ['Vehicle'] = 'kalahari',
@@ -943,6 +1004,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 43500,
+        ['CanBoost'] = false,
     },
     [GetHashKey('outlaw')] = {
         ['Vehicle'] = 'outlaw',
@@ -953,6 +1015,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 44500,
+        ['CanBoost'] = false,
     },
     -- SUVS
     [GetHashKey('baller')] = {
@@ -964,6 +1027,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 75000,
+        ['CanBoost'] = true,
     },
     [GetHashKey('baller3')] = {
         ['Vehicle'] = 'baller3',
@@ -974,6 +1038,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 85000,
+        ['CanBoost'] = true,
     },
     [GetHashKey('bjxl')] = {
         ['Vehicle'] = 'bjxl',
@@ -984,6 +1049,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 65000,
+        ['CanBoost'] = true,
     },
     [GetHashKey('dubsta2')] = {
         ['Vehicle'] = 'dubsta2',
@@ -994,6 +1060,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 87500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('granger')] = {
         ['Vehicle'] = 'granger',
@@ -1004,6 +1071,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 83500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('gresley')] = {
         ['Vehicle'] = 'gresley',
@@ -1014,6 +1082,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 75500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('huntley')] = {
         ['Vehicle'] = 'huntley',
@@ -1024,6 +1093,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 73500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('novak')] = {
         ['Vehicle'] = 'novak',
@@ -1034,6 +1104,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 85500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('rebla')] = {
         ['Vehicle'] = 'rebla',
@@ -1044,6 +1115,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 90000,
+        ['CanBoost'] = true,
     },
     [GetHashKey('toros')] = {
         ['Vehicle'] = 'toros',
@@ -1054,6 +1126,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 115000,
+        ['CanBoost'] = true,
     },
     -- Sedans
     [GetHashKey('asea')] = {
@@ -1065,6 +1138,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 35000,
+        ['CanBoost'] = true,
     },
     [GetHashKey('emperor')] = {
         ['Vehicle'] = 'emperor',
@@ -1075,6 +1149,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 34500,
+        ['CanBoost'] = false,
     },
     [GetHashKey('stratum')] = {
         ['Vehicle'] = 'stratum',
@@ -1085,6 +1160,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 46550,
+        ['CanBoost'] = true,
     },
     [GetHashKey('asterope')] = {
         ['Vehicle'] = 'asterope',
@@ -1095,6 +1171,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 37500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('premier')] = {
         ['Vehicle'] = 'premier',
@@ -1105,6 +1182,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 40500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('washington')] = {
         ['Vehicle'] = 'washington',
@@ -1115,6 +1193,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 38500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('warrener')] = {
         ['Vehicle'] = 'warrener',
@@ -1125,6 +1204,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 45500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('primo')] = {
         ['Vehicle'] = 'primo',
@@ -1135,6 +1215,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 42500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('cognoscenti')] = {
         ['Vehicle'] = 'cognoscenti',
@@ -1145,6 +1226,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 85000,
+        ['CanBoost'] = true,
     },
     [GetHashKey('superd')] = {
         ['Vehicle'] = 'superd',
@@ -1155,6 +1237,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 115000,
+        ['CanBoost'] = true,
     },
     -- Sports
     [GetHashKey('banshee')] = {
@@ -1166,6 +1249,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 90000,
+        ['CanBoost'] = true,
     },
     [GetHashKey('buffalo')] = {
         ['Vehicle'] = 'buffalo',
@@ -1176,6 +1260,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 85000,
+        ['CanBoost'] = true,
     },
     [GetHashKey('comet2')] = {
         ['Vehicle'] = 'comet2',
@@ -1186,6 +1271,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 87500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('coquette')] = {
         ['Vehicle'] = 'coquette',
@@ -1196,6 +1282,8 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 92500,
+        ['CanBoost'] = true,
+        ['CanBoost'] = true,
     },
     [GetHashKey('kuruma')] = {
         ['Vehicle'] = 'kuruma',
@@ -1206,6 +1294,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 95000,
+        ['CanBoost'] = true,
     },
     [GetHashKey('jugular')] = {
         ['Vehicle'] = 'jugular',
@@ -1216,6 +1305,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 90000,
+        ['CanBoost'] = true,
     },
     [GetHashKey('komoda')] = {
         ['Vehicle'] = 'komoda',
@@ -1226,6 +1316,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 100000,
+        ['CanBoost'] = true,
     },
     [GetHashKey('schafter3')] = {
         ['Vehicle'] = 'schafter3',
@@ -1236,6 +1327,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 95500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('sultan')] = {
         ['Vehicle'] = 'sultan',
@@ -1246,6 +1338,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 92500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('sultan2')] = {
         ['Vehicle'] = 'sultan2',
@@ -1256,6 +1349,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 95500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('calico')] = {
         ['Vehicle'] = 'calico',
@@ -1266,6 +1360,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 96000,
+        ['CanBoost'] = true,
     },
     [GetHashKey('specter')] = {
         ['Vehicle'] = 'specter',
@@ -1276,6 +1371,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 93550,
+        ['CanBoost'] = true,
     },
     [GetHashKey('neon')] = {
         ['Vehicle'] = 'neon',
@@ -1286,6 +1382,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 100000,
+        ['CanBoost'] = true,
     },
     -- Coupes
     [GetHashKey('zion')] = {
@@ -1297,6 +1394,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 64500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('felon')] = {
         ['Vehicle'] = 'felon',
@@ -1307,6 +1405,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 65400,
+        ['CanBoost'] = true,
     },
     [GetHashKey('jackal')] = {
         ['Vehicle'] = 'jackal',
@@ -1317,6 +1416,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 68500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('exemplar')] = {
         ['Vehicle'] = 'exemplar',
@@ -1327,6 +1427,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 75500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('f620')] = {
         ['Vehicle'] = 'f620',
@@ -1337,6 +1438,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 75500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('windsor')] = {
         ['Vehicle'] = 'windsor',
@@ -1347,6 +1449,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 85000,
+        ['CanBoost'] = true,
     },
     [GetHashKey('cogcabrio')] = {
         ['Vehicle'] = 'cogcabrio',
@@ -1357,6 +1460,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 83500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('oracle')] = {
         ['Vehicle'] = 'oracle',
@@ -1367,6 +1471,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 84500,
+        ['CanBoost'] = true,
     },
     [GetHashKey('previon')] = {
         ['Vehicle'] = 'previon',
@@ -1377,6 +1482,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Car',
         ['Price'] = 81500,
+        ['CanBoost'] = true,
     },
     -- Vans
     [GetHashKey('surfer')] = {
@@ -1388,6 +1494,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Van',
         ['Price'] = 55500,
+        ['CanBoost'] = false,
     },
     [GetHashKey('speedo')] = {
         ['Vehicle'] = 'speedo',
@@ -1398,6 +1505,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Van',
         ['Price'] = 51500,
+        ['CanBoost'] = false,
     },
     [GetHashKey('bobcatxl')] = {
         ['Vehicle'] = 'bobcatxl',
@@ -1408,6 +1516,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Van',
         ['Price'] = 55000,
+        ['CanBoost'] = false,
     },
     [GetHashKey('bison')] = {
         ['Vehicle'] = 'bison',
@@ -1418,6 +1527,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Van',
         ['Price'] = 50500,
+        ['CanBoost'] = false,
     },
     [GetHashKey('youga')] = {
         ['Vehicle'] = 'youga',
@@ -1428,6 +1538,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Van',
         ['Price'] = 48500,
+        ['CanBoost'] = false,
     },
     [GetHashKey('gburrito')] = {
         ['Vehicle'] = 'gburrito',
@@ -1438,6 +1549,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Van',
         ['Price'] = 47550,
+        ['CanBoost'] = false,
     },
     [GetHashKey('minivan')] = {
         ['Vehicle'] = 'minivan',
@@ -1448,6 +1560,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Van',
         ['Price'] = 45550,
+        ['CanBoost'] = false,
     },
     [GetHashKey('rumpo')] = {
         ['Vehicle'] = 'rumpo',
@@ -1458,6 +1571,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Van',
         ['Price'] = 46440,
+        ['CanBoost'] = false,
     },
     [GetHashKey('rumpo3')] = {
         ['Vehicle'] = 'rumpo3',
@@ -1468,6 +1582,7 @@ Shared.Vehicles = {
         ['Picture'] = 'None',
         ['Type'] = 'Van',
         ['Price'] = 48740,
+        ['CanBoost'] = false,
     },
     -- Custom
     [GetHashKey('gtr')] = {
@@ -1480,8 +1595,8 @@ Shared.Vehicles = {
         ['Type'] = 'Car',
         ['Price'] = 245000,
     },
-    [GetHashKey('skyline')] = {
-        ['Vehicle'] = 'skyline',
+    [GetHashKey('fnf4r34')] = {
+        ['Vehicle'] = 'fnf4r34',
         ['Model'] = 'Nissan',
         ['Name'] = 'Skyline',
         ['ShopClass'] = 'Custom',
@@ -1490,8 +1605,8 @@ Shared.Vehicles = {
         ['Type'] = 'Car',
         ['Price'] = 225000,
     },
-    [GetHashKey('s15')] = {
-        ['Vehicle'] = 's15',
+    [GetHashKey('s15rb')] = {
+        ['Vehicle'] = 's15rb',
         ['Model'] = 'Nissan',
         ['Name'] = 'S15',
         ['ShopClass'] = 'Custom',
@@ -1500,8 +1615,8 @@ Shared.Vehicles = {
         ['Type'] = 'Car',
         ['Price'] = 195000,
     },
-    [GetHashKey('rs6')] = {
-        ['Vehicle'] = 'rs6',
+    [GetHashKey('audirs6tk')] = {
+        ['Vehicle'] = 'audirs6tk',
         ['Model'] = 'Audi',
         ['Name'] = 'RS6',
         ['ShopClass'] = 'Custom',
@@ -1510,8 +1625,8 @@ Shared.Vehicles = {
         ['Type'] = 'Car',
         ['Price'] = 275000,
     },
-    [GetHashKey('range')] = {
-        ['Vehicle'] = 'range',
+    [GetHashKey('rr14')] = {
+        ['Vehicle'] = 'rr14',
         ['Model'] = 'Range Rover',
         ['Name'] = 'Evoque',
         ['ShopClass'] = 'Custom',
@@ -1520,18 +1635,18 @@ Shared.Vehicles = {
         ['Type'] = 'Car',
         ['Price'] = 230000,
     },
-    [GetHashKey('landcruiser')] = {
-        ['Vehicle'] = 'landcruiser',
-        ['Model'] = 'Toyota',
-        ['Name'] = 'Landcruiser',
-        ['ShopClass'] = 'Custom',
-        ['Class'] = 'B',
-        ['Picture'] = 'None',
-        ['Type'] = 'Car',
-        ['Price'] = 230000,
-    },
-    [GetHashKey('evo')] = {
-        ['Vehicle'] = 'evo',
+    -- [GetHashKey('landcruiser')] = {
+    --     ['Vehicle'] = 'landcruiser',
+    --     ['Model'] = 'Toyota',
+    --     ['Name'] = 'Landcruiser',
+    --     ['ShopClass'] = 'Custom',
+    --     ['Class'] = 'B',
+    --     ['Picture'] = 'None',
+    --     ['Type'] = 'Car',
+    --     ['Price'] = 230000,
+    -- },
+    [GetHashKey('evo9')] = {
+        ['Vehicle'] = 'evo9',
         ['Model'] = 'Mitsubishi',
         ['Name'] = 'Lancer Evo',
         ['ShopClass'] = 'Custom',
@@ -1540,8 +1655,8 @@ Shared.Vehicles = {
         ['Type'] = 'Car',
         ['Price'] = 275000,
     },
-    [GetHashKey('impreza')] = {
-        ['Vehicle'] = 'impreza',
+    [GetHashKey('subwrx')] = {
+        ['Vehicle'] = 'subwrx',
         ['Model'] = 'Subaru',
         ['Name'] = 'Impreza WRX',
         ['ShopClass'] = 'Custom',
@@ -1550,8 +1665,8 @@ Shared.Vehicles = {
         ['Type'] = 'Car',
         ['Price'] = 275000,
     },
-    [GetHashKey('supra')] = {
-        ['Vehicle'] = 'supra',
+    [GetHashKey('a80')] = {
+        ['Vehicle'] = 'a80',
         ['Model'] = 'Toyota',
         ['Name'] = 'A80 Supra',
         ['ShopClass'] = 'Custom',
@@ -1580,8 +1695,8 @@ Shared.Vehicles = {
         ['Type'] = 'Car',
         ['Price'] = 295000,
     },
-    [GetHashKey('G63')] = {
-        ['Vehicle'] = 'G63',
+    [GetHashKey('22g63')] = {
+        ['Vehicle'] = '22g63',
         ['Model'] = 'Mercedes',
         ['Name'] = 'G63',
         ['ShopClass'] = 'Custom',
@@ -1590,8 +1705,8 @@ Shared.Vehicles = {
         ['Type'] = 'Car',
         ['Price'] = 230000,
     },
-    [GetHashKey('trackhawk')] = {
-        ['Vehicle'] = 'trackhawk',
+    [GetHashKey('srt8b')] = {
+        ['Vehicle'] = 'srt8b',
         ['Model'] = 'Jeep',
         ['Name'] = 'Track Hawk',
         ['ShopClass'] = 'Custom',
@@ -1687,7 +1802,7 @@ Shared.Vehicles = {
         ['Class'] = 'B',
         ['Picture'] = 'None',
         ['Type'] = 'Helicopter',
-        ['Siren'] = ''
+        ['Siren'] = '',
     },
     -- POLICE UC
     [GetHashKey('ucbanshee')] = {

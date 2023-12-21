@@ -105,7 +105,7 @@ RegisterNetEvent('mercy-doors/client/sync-doors', function(DoorId, DoorData)
     if Config.Doors[DoorId].IsGate then return end
     if #(GetEntityCoords(PlayerPedId()) - Config.Doors[DoorId].Coords) < 2.0 then
         local HasAccess = HasDoorAccess(DoorId)
-        local DoorState = Config.Doors[DoorId].Locked and true or false
+        local DoorState = (Config.Doors[DoorId].Locked or Config.Doors[DoorId].Locked == 1) and true or false
         exports['mercy-ui']:SetInteraction((HasAccess and "[E] %s" or "%s"):format(DoorState and 'Locked' or 'Unlocked'), DoorState and 'error' or 'success', true)
     end
 end)
@@ -118,15 +118,15 @@ function ListenForKeypress(DoorId)
         Citizen.CreateThread(function()
             local CurrentDoorId, LockState = DoorId, nil
             local Distance = Config.Doors[CurrentDoorId].IsGate and 8.0 or 2.0
-            local CurrentDoorLockState = (Config.Doors[CurrentDoorId].Locked and true or false)
-            local HasDoorKeys, IsHidden = HasDoorAccess(CurrentDoorId), Config.Doors[CurrentDoorId].IsGate
+            local CurrentDoorLockState = ((Config.Doors[CurrentDoorId].Locked or Config.Doors[CurrentDoorId].Locked == 1) and true or false)
+            local HasAccess, IsHidden = HasDoorAccess(CurrentDoorId), Config.Doors[CurrentDoorId].IsGate
             while Listening do
                 Citizen.Wait(4)
                 -- print(CurrentDoorId)
                 if CurrentDoorLockState ~= LockState and not IsHidden then
                     if #(GetEntityCoords(PlayerPedId()) - Config.Doors[CurrentDoorId].Coords) < Distance then
                         LockState = CurrentDoorLockState
-                        exports['mercy-ui']:SetInteraction((HasDoorKeys and "[E] %s" or "%s"):format(LockState and 'Locked' or 'Unlocked'), LockState and 'error' or 'success')
+                        exports['mercy-ui']:SetInteraction((HasAccess and "[E] %s" or "%s"):format(LockState and 'Locked' or 'Unlocked'), LockState and 'error' or 'success')
                     end
                 end
                 if IsControlJustReleased(0, 38) then
@@ -190,6 +190,12 @@ function HasDoorAccess(DoorId)
         end
         for k, v in pairs(Config.Doors[DoorId]['Access']['Business']) do
             if exports['mercy-business']:HasPlayerBusinessPermission(v, 'property_keys') then
+                return true
+            end
+        end
+        if Config.Doors[DoorId]['Access']['Item'] == nil then return false end
+        for k, v in pairs(Config.Doors[DoorId]['Access']['Item']) do
+            if exports['mercy-inventory']:HasEnoughOfItem(v, 1) then
                 return true
             end
         end

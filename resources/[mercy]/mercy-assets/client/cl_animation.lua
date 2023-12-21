@@ -1,4 +1,4 @@
-local Lockpicking, Healing, TimerEnabled, InTackleCooldown, IsPointing, Crouched = false, false, false, false, false, false
+local Lockpicking, Healing, TimerEnabled, InTackleCooldown, IsPointing = false, false, false, false, false
 
 -- [ Threads ] --
 
@@ -64,7 +64,6 @@ end)
 RegisterNetEvent('mercy-assets/client/set-my-walkstyle', function()
     local WalkStyle = PlayerModule.GetPlayerData().MetaData['WalkingStyle']
     if WalkStyle == nil or WalkStyle == 'None' then ResetPedMovementClipset(PlayerPedId(), 0.25) return end
-
     RequestAnimSet(WalkStyle)
     while not HasAnimSetLoaded(WalkStyle) do Citizen.Wait(0) end
     SetPedMovementClipset(PlayerPedId(), WalkStyle, 0.25)

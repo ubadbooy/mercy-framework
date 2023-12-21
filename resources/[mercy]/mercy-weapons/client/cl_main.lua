@@ -120,7 +120,7 @@ Citizen.CreateThread(function()
                 if IsPedShooting(PlayerPedId()) and Config.WeaponData ~= nil then
                     TriggerServerEvent('mercy-police/server/create-evidence', 'Bullet', Config.WeaponData)
                     if not exports['mercy-police']:IsStatusAlreadyActive('gunpowder') then
-                        TriggerEvent('mercy-police/client/evidence-set-status', 'gunpowder', 500)
+                        TriggerEvent('mercy-police/client/evidence/set-status', 'gunpowder', 500)
                     end
                     Citizen.Wait(1000)
                 end
@@ -215,6 +215,10 @@ RegisterNetEvent('mercy-preferences/client/update', function(PreferencesData)
 end)
 
 RegisterNetEvent('mercy-weapons/client/set-current-weapon', function(WeaponData)
+    if not WeaponData then
+        Config.WeaponData = nil
+        return
+    end
     Config.WeaponData = WeaponData
 end)
 

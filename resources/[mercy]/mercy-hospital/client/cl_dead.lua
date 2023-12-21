@@ -11,7 +11,7 @@ Citizen.CreateThread(function()
             if LocalPlayer.state.LoggedIn then    
                 if IsEntityDead(PlayerPedId()) and not Config.Dead then
                     PressingTime, Doingtimer = 5, false
-                    Config.Dead, Config.Timer, Doingtimer = true, 60, false
+                    Config.Dead, Config.Timer = true, 60
                     EventsModule.TriggerServer('mercy-hospital/server/set-dead-state', true)
                     TriggerEvent('mercy-hospital/client/do-dead-on-player', false)
                 else
@@ -87,7 +87,7 @@ RegisterNetEvent('mercy-hospital/client/do-dead-on-player', function(Forced)
     DoPlayerAnimationLoop()
     Citizen.SetTimeout(1500, function()
         local StreetLabel = FunctionModule.GetStreetName()
-        TriggerServerEvent('mercy-ui/server/send-civ-injured', StreetLabel)
+        EventsModule.TriggerServer('mercy-ui/server/send-civ-injured', StreetLabel)
     end)
 end)
 

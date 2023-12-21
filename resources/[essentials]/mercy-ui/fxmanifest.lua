@@ -5,11 +5,6 @@ lua54 'yes'
 
 ui_page 'nui/index.html'
 
--- dependencies {
---     'mercy-polyzone',
---     'mercy-voice',
--- }
-
 client_script {
     '@mercy-assets/client/cl_errorlog.lua',
     '@mercy-polyzone/client/cl_main.lua',
@@ -43,6 +38,7 @@ files {
     'nui/fonts/*.woff',
     'nui/fonts/*.woff2',
     'nui/fonts/*.ttf',
+    'nui/fonts/*.otf',
     'nui/css/*.css',
     'nui/js/*.js',
     'nui/Apps/**/*.html',

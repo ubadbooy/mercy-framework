@@ -1,32 +1,22 @@
 -- [ Events ] --
 
-RegisterNetEvent('mercy-ui/client/send-emergency-alert', function(AlertData, ForBoth)
+RegisterNetEvent('mercy-ui/client/send-emergency-alert', function(AlertData, ForBoth, SendLocation)
     local Player = PlayerModule.GetPlayerData()
-    if ForBoth then
-        if Player.Job ~= nil and (Player.Job.Name == 'police' or Player.Job.Name == 'ems') and Player.Job.Duty then
-            if AlertData.AlertArea then AlertData.AlertCoords = vector3(AlertData.AlertCoords.x + math.random(-2, 4), AlertData.AlertCoords.y + math.random(-2, 4), AlertData.AlertCoords.z) end
-            SendUIMessage('Police', 'SendAlert', {AlertType = AlertData.AlertType, AlertName = AlertData.AlertName, AlertCode = AlertData.AlertCode, AlertId = AlertData.AlertId, AlertTime = AlertData.AlertTime, AlertCoords = AlertData.AlertCoords, AlertItems = AlertData.AlertItems})
-            if AlertData.AlertType == 'alert-panic' then
-                EventsModule.TriggerServer('mercy-ui/server/play-sound-on-entity', '10-1314', GetPlayerServerId(PlayerId()), 3000, 15.0, nil, true)
-            elseif AlertData.AlertType == 'alert-red' then
-                EventsModule.TriggerServer('mercy-ui/server/play-sound-on-entity', 'HighPrioCrime', GetPlayerServerId(PlayerId()), 3000, 15.0, nil, true)
-            else
-                PlaySoundFrontend(-1, "Lose_1st", "GTAO_FM_Events_Soundset", true)
-            end
-            AddTempBlip(AlertData.AlertId, AlertData.AlertCoords, AlertData.AlertCode..' - '..AlertData.AlertName, AlertData.AlertName, AlertData.AlertArea)
+    SendLocation = SendLocation == nil and true or SendLocation
+    AlertData.AreaRadius = AlertData.AreaRadius ~= nil and AlertData.AreaRadius or 25.0
+
+    if Player.Job ~= nil and (Player.Job.Name == 'police' or (ForBoth and Player.Job.Name == 'ems')) and Player.Job.Duty then
+        if AlertData.AlertArea then AlertData.AlertCoords = vector3(AlertData.AlertCoords.x + math.random(-AlertData.AreaRadius, AlertData.AreaRadius), AlertData.AlertCoords.y + math.random(-AlertData.AreaRadius, AlertData.AreaRadius), AlertData.AlertCoords.z) end
+        SendUIMessage('Police', 'SendAlert', {AlertType = AlertData.AlertType, AlertName = AlertData.AlertName, AlertCode = AlertData.AlertCode, AlertId = AlertData.AlertId, AlertTime = AlertData.AlertTime, AlertCoords = AlertData.AlertCoords, AlertItems = AlertData.AlertItems, SendLocation = SendLocation})
+        if AlertData.AlertType == 'alert-panic' then
+            EventsModule.TriggerServer('mercy-ui/server/play-sound-on-entity', '10-1314', GetPlayerServerId(PlayerId()), 3000, 15.0, nil, true)
+        elseif AlertData.AlertType == 'alert-red' then
+            EventsModule.TriggerServer('mercy-ui/server/play-sound-on-entity', 'HighPrioCrime', GetPlayerServerId(PlayerId()), 3000, 15.0, nil, true)
+        else
+            PlaySoundFrontend(-1, "Lose_1st", "GTAO_FM_Events_Soundset", true)
         end
-    else
-        if Player.Job ~= nil and Player.Job.Name == 'police' and Player.Job.Duty then
-            if AlertData.AlertArea then AlertData.AlertCoords = vector3(AlertData.AlertCoords.x + math.random(-2, 4), AlertData.AlertCoords.y + math.random(-2, 4), AlertData.AlertCoords.z) end
-            SendUIMessage('Police', 'SendAlert', {AlertType = AlertData.AlertType, AlertName = AlertData.AlertName, AlertCode = AlertData.AlertCode, AlertId = AlertData.AlertId, AlertTime = AlertData.AlertTime, AlertCoords = AlertData.AlertCoords, AlertItems = AlertData.AlertItems})
-            if AlertData.AlertType == 'alert-panic' then
-                EventsModule.TriggerServer('mercy-ui/server/play-sound-on-entity', '10-1314', GetPlayerServerId(PlayerId()), 3000, 15.0, nil, true)
-            elseif AlertData.AlertType == 'alert-red' then
-                EventsModule.TriggerServer('mercy-ui/server/play-sound-on-entity', 'HighPrioCrime', GetPlayerServerId(PlayerId()), 3000, 15.0, nil, true)
-            else
-                PlaySoundFrontend(-1, "Lose_1st", "GTAO_FM_Events_Soundset", true)
-            end
-            AddTempBlip(AlertData.AlertId, AlertData.AlertCoords, AlertData.AlertCode..' - '..AlertData.AlertName, AlertData.AlertName, AlertData.AlertArea)
+        if SendLocation then
+            AddTempBlip(AlertData.AlertId, AlertData.AlertCoords, AlertData.AlertCode..' - '..AlertData.AlertName, AlertData.AlertName, AlertData.AlertArea, AlertData.AreaRadius)
         end
     end
 end)
@@ -52,10 +42,11 @@ AddInitialize(function()
     KeybindsModule.Add("alertMenu", 'Services', 'Dispatch Menu', '', false, 'mercy-ui/client/open-alerts-menu')
 end)
 
-function AddTempBlip(AlertId, Coords, Text, Icon, Area)
+function AddTempBlip(AlertId, Coords, Text, Icon, Area, Radius)
     local Transition = 250
     local GeneratedBlipSprite = Config.AlertBlip[Icon] ~= nil and Config.AlertBlip[Icon] or 66
-    local Blip = nil if Area then Blip = BlipModule.CreateRadiusBlip('alert-'..AlertId, Coords, 1, 50.0) else Blip = BlipModule.CreateBlip('alert-'..AlertId, Coords, Text, GeneratedBlipSprite, 1, true, 1.0) end
+    local Blip = nil 
+    if Area then Blip = BlipModule.CreateRadiusBlip('alert-'..AlertId, Coords, 1, Radius * 2) else Blip = BlipModule.CreateBlip('alert-'..AlertId, Coords, Text, GeneratedBlipSprite, 1, true, 1.0) end
     while Transition ~= 0 do
         Citizen.Wait(180 * 4)
         Transition = Transition - 1
@@ -76,8 +67,21 @@ RegisterNUICallback('Police/SetWaypoint', function(Data, Cb)
 end)
 
 RegisterNUICallback('Police/GetOnDutyPeople', function(Data, Cb)
-    local Data = CallbackModule.SendCallback('mercy-ui/server/police-get-duty-people')
+    local Data = CallbackModule.SendCallback('mercy-ui/server/police/get-duty-people')
     Cb(Data)
+end)
+
+RegisterNUICallback('Police/GetDispatchData', function(Data, Cb)
+    local Data = CallbackModule.SendCallback('mercy-ui/server/police/get-dispatch-data')
+    local DispatchData = {
+        VehTypes = Config.VehicleOperatingType,
+        Data = Data,
+    }
+    Cb(DispatchData)
+end)
+
+RegisterNUICallback('Police/SetDispatchData', function(Data, Cb)
+    
 end)
 
 RegisterNUICallback('Police/CloseDispatch', function(Data, Cb)

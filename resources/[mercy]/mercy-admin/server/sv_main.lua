@@ -101,6 +101,37 @@ Citizen.CreateThread(function()
 
     -- [ Console ] --
 
+    RegisterCommand('setpermission', function(source, args, rawCommand)
+        if source == 0 then
+            local ServerId = tonumber(args[1])
+            local Group = args[2] ~= nil and args[2]:lower() or false
+            if ServerId and Group then
+                if Shared.Groups[Group] then
+                    local Name = GetPlayerName(ServerId)
+                    PlayerModule.SetPermission(ServerId, Group)
+                    print('Set permission group for '..Name..' ('..ServerId..') to '..Group)
+                else
+                    print('Invalid group')
+                end
+            else
+                print('SYNTAX: setpermission [serverid] [group]')
+            end
+        end
+    end, false)
+
+    RegisterCommand('refreshpermissions', function(source, args, rawCommand)
+        if source == 0 then
+            local ServerId = tonumber(args[1])
+            if ServerId then
+                PlayerModule.RefreshPermissions(ServerId)
+                local Name = GetPlayerName(ServerId)
+                print('Refreshed permissions for '..Name..' ('..ServerId..')')
+            else
+                print('SYNTAX: refreshpermissions [serverid]')
+            end
+        end
+    end, false)
+
     RegisterCommand(Config.Commands['APKick'], function(source, args, rawCommand)
         if source == 0 then
             local ServerId = tonumber(args[1])
@@ -126,7 +157,7 @@ Citizen.CreateThread(function()
             local ServerId, Amount = tonumber(args[1]), tonumber(args[2])
             local Player = PlayerModule.GetPlayerBySource(ServerId)
             if Player ~= nil then
-                Player.Functions.AddMoney('cash', Amount)
+                Player.Functions.AddMoney('Cash', Amount)
                 print(Lang:t('info.gavemoney', {amount = Amount, moneytype = 'Cash'}))
             end
         end
@@ -242,8 +273,9 @@ Citizen.CreateThread(function()
         elseif string.match(Identifier, "steam:") then
             TPlayer = GetPlayerFromIdentifier('steam', Identifier)
         end
+
         if TPlayer ~= nil then
-            local Steam = CallbackModule.GetIdentifier(TPlayer.PlayerData.Source, "steam")
+            local Steam = FunctionsModule.GetIdentifier(TPlayer.PlayerData.Source, "steam")
             PlayerInfo = {
                 Name = TPlayer.PlayerData.Name,
                 Steam = Steam ~= nil and Steam or 'Not found',
@@ -252,6 +284,8 @@ Citizen.CreateThread(function()
                 CitizenId = TPlayer.PlayerData.CitizenId
             }
             Cb(PlayerInfo)
+        else
+            Cb(false)
         end
     end)
 
@@ -308,11 +342,14 @@ RegisterNetEvent("mc-admin/server/ban-player", function(ServerId, Expires, Reaso
 
     local Player = PlayerModule.GetPlayerBySource(src)
     local Identifier = FunctionsModule.GetIdentifier(ServerId, 'license') ~= nil and FunctionsModule.GetIdentifier(ServerId, 'license') or FunctionsModule.GetIdentifier(ServerId, 'steam')
+    if Identifier == nil then
+        Player.Functions.Notify('ban-fail', "Identifiers of player not found..", 'error')
+        return
+    end
+    
     local BanData = MySQL.query.await('SELECT * FROM bans WHERE steam = ? or license = ?', {Identifier, Identifier})
     if BanData and BanData[1] ~= nil then
-        -- for k, v in pairs(BanData) do
-            Player.Functions.Notify('already-banned', Lang:t('bans.already_banned', {player = GetPlayerName(ServerId), reason = BanData[1].reason}), 'error')
-        -- end
+        Player.Functions.Notify('already-banned', Lang:t('bans.already_banned', {player = GetPlayerName(ServerId), reason = BanData[1].reason}), 'error')
     else
         local Expiring, ExpireDate = GetBanTime(Expires)
         local Time = os.time()
@@ -381,6 +418,7 @@ RegisterNetEvent("mc-admin/server/give-money", function(ServerId, MoneyType, Mon
     local src = source
     if not AdminCheck(src) then return end
     ServerId = tonumber(ServerId)
+    MoneyAmount = tonumber(MoneyAmount)
     local PlayerSource = ServerId ~= nil and ServerId or src
 
     local TPlayer = PlayerModule.GetPlayerBySource(PlayerSource)
@@ -553,6 +591,31 @@ RegisterNetEvent("mc-admin/server/open-bennys", function(ServerId)
 
     TriggerClientEvent('mercy-bennys/client/open-bennys', PlayerSource, true)
 end)
+
+RegisterNetEvent("mc-admin/server/set-permissions", function(ServerId, Permission)
+    local src = source
+    if not AdminCheck(src) then return end
+    ServerId = tonumber(ServerId)
+    local PlayerSource = ServerId ~= nil and ServerId or src
+    local Player = PlayerModule.GetPlayerBySource(PlayerSource)
+    if not Player then return end
+
+    PlayerModule.SetPermission(PlayerSource, Permission)
+    Player.Functions.Notify('set-perm', 'You successfully set the permission group of '..Player.PlayerData.Name..' to '..Permission..'!', 'success')
+end)
+
+RegisterNetEvent("mc-admin/server/refresh-permissions", function(ServerId)
+    local src = source
+    if not AdminCheck(src) then return end
+    ServerId = tonumber(ServerId)
+    local PlayerSource = ServerId ~= nil and ServerId or src
+    local Player = PlayerModule.GetPlayerBySource(PlayerSource)
+    if not Player then return end
+
+    PlayerModule.RefreshPermissions(PlayerSource)
+    Player.Functions.Notify('set-perm', 'You successfully refreshed all permissions!', 'success')
+end)
+
 
 RegisterNetEvent("mc-admin/server/kill", function(ServerId)
     local src = source

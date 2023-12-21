@@ -71,13 +71,6 @@ RegisteredApps = [
         status: false,
     },
     {
-        app: 'Laptop',
-        html: ['index.html'],
-        css: ['main.css'],
-        js: ['main.js', 'boosting.js', 'market.js', 'mining.js'],
-        status: false,
-    },
-    {
         app: 'Pdm',
         html: ['index.html'],
         css: ['main.css'],
@@ -130,7 +123,7 @@ RegisteredApps = [
         app: 'Phone',
         html: ['index.html'],
         css: ['main.css', 'extra.import.css'],
-        js: [ 'main.js', 'details.js', 'contacts.js', 'calls.js', 'messages.js', 'pinger.js', 'mails.js', 'advert.js', 'twitter.js', 'garage.js', 'debt.js', 'documents.js', 'housing.js', 'crypto.js', 'jobcenter.js', 'employment.js', 'dark.js', 'cameras.js' ],
+        js: [ 'main.js', 'details.js', 'contacts.js', 'calls.js', 'messages.js', 'pinger.js', 'mails.js', 'advert.js', 'twitter.js', 'garage.js', 'debt.js', 'documents.js', 'housing.js', 'crypto.js', 'jobcenter.js', 'employment.js', 'dark.js', 'calculator.js', 'cameras.js' ],
         status: false,
     },
     {
@@ -150,7 +143,7 @@ RegisteredApps = [
     {
         app: 'Minigames',
         html: ['index.html'],
-        css: ['main.css', 'color.css', 'figure.css', 'boosting.css'],
+        css: ['main.css'],
         js: ['main.js', 'memory.js', 'color.js', 'figure.js', 'boosting.js'],
         status: false,
     },
@@ -184,6 +177,13 @@ RegisteredApps = [
     },
     {
         app: 'ALPR',
+        html: ['index.html'],
+        css: ['main.css'],
+        js: ['main.js'],
+        status: false,
+    },
+    {
+        app: 'Notepad',
         html: ['index.html'],
         css: ['main.css'],
         js: ['main.js'],

@@ -239,7 +239,7 @@ function ChangeVariation(Data)
             if Category == "Face" then
                 if Type == "Item" then
                     SetPedHeadBlendData(PlayerPed, 
-                    tonumber(Item), 
+                    Item, 
                     Config.SkinData['Skin']["Face2"].Item, 
                     Config.SkinData['Skin']["Face3"].Item, 
                     Config.SkinData['Skin']["Face"].Texture, 
@@ -255,7 +255,7 @@ function ChangeVariation(Data)
                     Config.SkinData['Skin']["Face"].Item, 
                     Config.SkinData['Skin']["Face2"].Item, 
                     Config.SkinData['Skin']["Face3"].Item, 
-                    tonumber(Item), 
+                    Item, 
                     Config.SkinData['Skin']["Face2"].Texture, 
                     Config.SkinData['Skin']["Face3"].Texture, 
                     Config.SkinData['Skin']["Facemix"].Item, 
@@ -268,7 +268,7 @@ function ChangeVariation(Data)
                 if Type == "Item" then
                     SetPedHeadBlendData(PlayerPed, 
                     Config.SkinData['Skin']["Face"].Item, 
-                    tonumber(Item), 
+                    Item, 
                     Config.SkinData['Skin']["Face3"].Item, 
                     Config.SkinData['Skin']["Face"].Texture, 
                     Config.SkinData['Skin']["Face2"].Texture, 
@@ -284,7 +284,7 @@ function ChangeVariation(Data)
                     Config.SkinData['Skin']["Face2"].Item,
                     Config.SkinData['Skin']["Face3"].Item, 
                     Config.SkinData['Skin']["Face"].Texture, 
-                    tonumber(Item), 
+                    Item, 
                     Config.SkinData['Skin']["Face3"].Texture, 
                     Config.SkinData['Skin']["Facemix"].Item, 
                     Config.SkinData['Skin']["Skinmix"].Item, 
@@ -297,7 +297,7 @@ function ChangeVariation(Data)
                     SetPedHeadBlendData(PlayerPed, 
                     Config.SkinData['Skin']["Face"].Item, 
                     Config.SkinData['Skin']["Face2"].Item, 
-                    tonumber(Item), 
+                    Item, 
                     Config.SkinData['Skin']["Face"].Texture, 
                     Config.SkinData['Skin']["Face2"].Texture, 
                     Config.SkinData['Skin']["Face3"].Texture, 
@@ -313,7 +313,7 @@ function ChangeVariation(Data)
                     Config.SkinData['Skin']["Face3"].Item, 
                     Config.SkinData['Skin']["Face"].Texture, 
                     Config.SkinData['Skin']["Face2"].Texture, 
-                    tonumber(Item), 
+                    Item, 
                     Config.SkinData['Skin']["Facemix"].Item, 
                     Config.SkinData['Skin']["Skinmix"].Item, 
                     Config.SkinData['Skin']["Thirdmix"].Item, false)
@@ -371,6 +371,16 @@ function ChangeVariation(Data)
         -- Hair
         ---
         if Category == "Hair" then
+            SetPedHeadBlendData(PlayerPed, 
+            Config.SkinData['Skin']["Face"].Item, 
+            Config.SkinData['Skin']["Face2"].Item, 
+            Config.SkinData['Skin']["Face3"].Item, 
+            Config.SkinData['Skin']["Face"].Texture, 
+            Config.SkinData['Skin']["Face2"].Texture, 
+            Config.SkinData['Skin']["Face3"].Texture, 
+            Config.SkinData['Skin']["Facemix"].Item, 
+            Config.SkinData['Skin']["Skinmix"].Item, 
+            Config.SkinData['Skin']["Thirdmix"].Item, false)
             if Type == "Item" then
                 SetPedComponentVariation(PlayerPed, 2, Item, 0, 0)
                 Config.SkinData['Skin']["Hair"].Item = Item
@@ -808,23 +818,6 @@ function ChangeVariation(Data)
         end
         GetMaxValues()
     end
-end
-
-function LoadPlayerModel(skin)
-    RequestModel(skin)
-    while not HasModelLoaded(skin) do
-        Wait(1)
-    end
-end
-
-function RequestAnimationDict(Model)
-    local Attempts = 0
-    while Attempts < 100 and not HasAnimDictLoaded(Model) do
-        Attempts = Attempts + 1
-        RequestAnimDict(Model)
-        Citizen.Wait(1)
-    end
-    return Attempts < 100
 end
 
 function ChangeToSkinNoUpdate(Skin)

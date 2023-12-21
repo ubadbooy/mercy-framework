@@ -1,4 +1,4 @@
-PlayerModule, EventsModule, FunctionModule, VehicleModule, BlipModule, EntityModule, KeybindsModule = nil, nil, nil, nil, nil, nil, nil
+PlayerModule, EventsModule, FunctionModule, VehicleModule, BlipModule, EntityModule, KeybindsModule = nil
 PlayerData = {}
 
 AddEventHandler('Modules/client/ready', function()
@@ -34,14 +34,16 @@ end)
 
 RegisterNetEvent('mercy-base/client/on-logout', function()
 	TriggerServerEvent('mercy-police/server/clear-blip')
-	RemoveAllJobBlips() ResetJail()
-    PlayerData = {}
+	RemoveAllJobBlips() 
+	ResetJail()
+
+	PlayerData = {}
 end)
 
 RegisterNetEvent('mercy-base/client/on-job-update', function(JobData, DutyUpdate)
 	PlayerData.Job = JobData
-	if JobData.Name == 'police' and DutyUpdate then
-		if JobData.Duty == false then TriggerServerEvent('mercy-police/server/clear-blip') end
+	if JobData.Name == 'police' or JobData.Name == 'ems' and DutyUpdate then
+		if not JobData.Duty then TriggerServerEvent('mercy-police/server/clear-blip') end
 	end
 	RemoveAllJobBlips()
 end)
@@ -89,30 +91,26 @@ end)
 
 RegisterNetEvent('mercy-police/client/create-badge', function()
     Citizen.SetTimeout(650, function()
-		local Departments = Shared.JobDepartments['police']
-
-		local InputChoices = {}
-		for k, v in pairs(Departments) do
-			table.insert(InputChoices, {
-				Icon = false,
-				Text = v,
-				OnClickEvent = '',
-				EventType = '',
-			})
-		end
-
 		local Data = {
-			{Name = 'Name', Label = 'Name', Icon = 'fas fa-signature'},
-			{Name = 'Rank', Label = 'Rank', Icon = 'fas fa-arrows-alt-h'},
-			{Name = 'Department', Label = 'Department', Icon = 'fas fa-palette', Choices = InputChoices},
+			{Name = 'StateId', Label = 'StateId', Icon = 'fas fa-signature'},
 			{Name = 'Image', Label = 'Image (URL)', Icon = 'fas fa-link'},
 		}
 
 		local BadgeInput = exports['mercy-ui']:CreateInput(Data)
-		if BadgeInput['Name'] and BadgeInput['Rank'] and BadgeInput['Department'] and BadgeInput['Image'] then
-			TriggerServerEvent('mercy-police/server/request-pd-badge', BadgeInput['Name'], BadgeInput['Rank'], BadgeInput['Department'], BadgeInput['Image'])
+		if BadgeInput['StateId'] and BadgeInput['Image'] then
+			TriggerServerEvent('mercy-police/server/request-pd-badge', BadgeInput['StateId'], BadgeInput['Image'])
 		end
     end)
+end)
+
+RegisterNetEvent('mercy-police/client/post-badge', function(Name, Rank, Department, Image)
+    local ClosestPlayer = PlayerModule.GetClosestPlayer(nil, 2.0)
+
+    if ClosestPlayer['ClosestPlayerPed'] == -1 and ClosestPlayer['ClosestServer'] == -1 then
+        EventsModule.TriggerServer("mercy-items/server/show-badge", Name, Rank, Department, Image)
+    else
+        EventsModule.TriggerServer("mercy-items/server/show-badge", Name, Rank, Department, Image, ClosestPlayer['ClosestServer'])
+    end
 end)
 
 RegisterNetEvent('mercy-police/client/show-badge', function(Name, Rank, Department, Image)
@@ -134,12 +132,24 @@ RegisterNetEvent('mercy-police/client/badge-anim', function()
 	end)
 end)
 
+RegisterNetEvent('mercy-police/client/send-311', function(Data)
+    if PlayerModule.GetPlayerData().Job ~= nil and (PlayerModule.GetPlayerData().Job.Name == 'police' or PlayerModule.GetPlayerData().Job.Name == 'ems') and PlayerModule.GetPlayerData().Job.Duty then
+		TriggerEvent('mercy-chat/client/post-message', "311 | ("..Data['Id']..") "..Data['Who']..':', Data['Message'], 'warning')
+	end
+end)
+
 RegisterNetEvent('mercy-police/client/send-911', function(Data, IsAnonymously)
+	local StreetLabel = exports['mercy-base']:FetchModule('Functions').GetStreetName()
+	EventsModule.TriggerServer('mercy-ui/server/send-civ-alert', StreetLabel, Data, IsAnonymously)
+
+end)
+
+RegisterNetEvent('mercy-police/client/send-911-chat', function(Data, IsAnonymously)
     if PlayerModule.GetPlayerData().Job ~= nil and (PlayerModule.GetPlayerData().Job.Name == 'police' or PlayerModule.GetPlayerData().Job.Name == 'ems') and PlayerModule.GetPlayerData().Job.Duty then
         if IsAnonymously then
-			TriggerEvent('mercy-chat/client/post-message', "911 | Anonymous", Data['Message'], 'error')
+			TriggerEvent('mercy-chat/client/post-message', "911 | Anonymous:", Data['Message'], 'error')
         else
-			TriggerEvent('mercy-chat/client/post-message', "911 | ("..Data['Id']..") "..Data['Who'], Data['Message'], 'error')
+			TriggerEvent('mercy-chat/client/post-message', "911 | ("..Data['Id']..") "..Data['Who']..':', Data['Message'], 'error')
         end
 		PlaySoundFrontend(-1, "Event_Start_Text", "GTAO_FM_Events_Soundset", false)
     end
@@ -153,9 +163,8 @@ end)
 
 RegisterNetEvent('mercy-police/client/send-911-dispatch', function(Data, IsAnonymously)
     local StreetLabel = exports['mercy-base']:FetchModule('Functions').GetStreetName()
-    TriggerServerEvent('mercy-ui/server/send-911-call', Data, StreetLabel, IsAnonymously)
+	EventsModule.TriggerServer('mercy-ui/server/send-911-call', Data, StreetLabel, IsAnonymously)
 end)
-
 
 RegisterNetEvent('mercy-items/client/used-spikes', function()
 	Citizen.SetTimeout(500, function()
@@ -243,38 +252,34 @@ end)
 RegisterNetEvent('mercy-police/client/open-employee-list', function()
 	local CopsList = CallbackModule.SendCallback("mercy-police/server/get-all-cops-db")
 	local MenuData = {}
-	MenuData[#MenuData + 1] = {
-		['Title'] = 'Hire',
-		['Desc'] = 'Hire someone',
-		['Data'] = {['Event'] = 'mercy-police/client/hire-police', ['Type'] = 'Client'},
-	}
-
 	local EmployeeList = {}
 
-	-- table.insert(EmployeeList, {['Title'] = '<i class="fas fa-chevron-left"></i> Back', ['Type'] = 'Back', ['GoBack'] = true})
 	for k, v in pairs(CopsList) do
 		local List = {
-			['Title'] = v.Name..' (#'..v.Job.Callsign..')',
+			['Title'] = v.Name..' ('..v.Job.Callsign..')',
 			['Desc'] = 'Show Employee Info',
-			['Data'] = { ['Event'] = '', ['Type'] = '' },
+			['Data'] = {['Event'] = '', ['Type'] = ''},
 			['SecondMenu'] = {
 				{
 					['Title'] = 'Employee',
 					['Desc'] = v.Name,
 					['Type'] = 'Click',
 					['Data'] = { ['Event'] = '', ['Type'] = '' },
+					['CloseMenu'] = false,
 				},
 				{
-					['Title'] = 'Information',
-					['Desc'] = 'Callsign: '..v.Job.Callsign..'; Highcommand: '..tostring(v.Job.HighCommand)..'<br>Job: Police; Department: '..v.Job.Department,
+					['Title'] = 'Informations',
+					['Desc'] = 'Callsign: '..v.Job.Callsign..'; Highcommand: '..(tostring(v.Job.HighCommand) == 'true' and 'Yes' or 'No')..'<br>Department: '..v.Job.Department..'; Rank: '..v.Job.Rank,
 					['Type'] = 'Click',
 					['Data'] = { ['Event'] = '', ['Type'] = '' },
+					['CloseMenu'] = false,
 				},
 				{
 					['Title'] = 'Salary',
 					['Desc'] = 'Current Salary: $'..v.Job.Salary..'.00',
 					['Type'] = 'Click',
 					['Data'] = { ['Event'] = '', ['Type'] = '' },
+					['CloseMenu'] = false,
 				},
 				{
 					['Title'] = 'Fire Employee',
@@ -283,18 +288,41 @@ RegisterNetEvent('mercy-police/client/open-employee-list', function()
 				}
 			},
 		}
-
 		table.insert(EmployeeList, List)
 	end
 
 	MenuData[#MenuData + 1] = {
-		['Title'] = 'Employee List',
-		['Desc'] = 'Show me all my bitchess',
+		['Title'] = 'Employee List ('..#EmployeeList..')',
+		['Desc'] = 'Show all employees',
 		['Data'] = {['Event'] = '', ['Type'] = ''},
-		['Type'] = 'SubMenu',
-		['SubMenu'] = EmployeeList,
+		['SecondMenu'] = EmployeeList,
 	}
+	MenuData[#MenuData + 1] = {
+		['Title'] = 'Hire Person',
+		['Desc'] = 'Hire someone',
+		['Data'] = {['Event'] = 'mercy-police/client/hire-police', ['Type'] = 'Client'},
+	}
+	MenuData[#MenuData + 1] = {
+		['Title'] = 'Fire Person',
+		['Desc'] = 'Fire someone using State id',
+		['Data'] = {['Event'] = 'mercy-police/client/fire-police', ['Type'] = 'Client'},
+	}
+
 	exports['mercy-ui']:OpenContext({ ['MainMenuItems'] = MenuData }) 
+end)
+
+RegisterNetEvent("mercy-police/client/fire-police", function()
+	local PlayerData = PlayerModule.GetPlayerData()
+	if PlayerData.Job.Name ~= 'police' or not PlayerData.Job.Duty or not PlayerData.Job.HighCommand then return end
+	Citizen.SetTimeout(450, function()
+        local Data = {{Name = 'StateId', Label = 'State Id', Icon = 'fas fa-user'}}
+        local FireInput = exports['mercy-ui']:CreateInput(Data)
+		if FireInput['StateId'] then
+			EventsModule.TriggerServer('mercy-police/server/fire-employee', FireInput['StateId'])
+		else
+			TriggerEvent('mercy-ui/client/notify', 'police-error', "An error occured! (You can\'t leave this empty)", 'error')
+		end
+    end)
 end)
 
 RegisterNetEvent('mercy-police/client/hire-police', function()

@@ -1,5 +1,5 @@
 local IsWheelSpun = false
-local WheelDui, DuiObject = nil, nil
+local WheelDui, DuiObject = false, nil
 
 -- [ Events ] --
 
@@ -16,8 +16,8 @@ RegisterNetEvent('mc-wheel/client/sync-wheel-status', function(Bool)
 end)
 
 RegisterNetEvent('mc-wheel/client/do-spin', function(Data)
-    if not HasCasinoMembership() then return end
-    if IsWheelActive() then return end
+    if not HasCasinoMembership() then return exports['mercy-ui']:Notify("casino", "You must have a casino membership to do this..", "error") end
+    if IsWheelActive() then return  end
     local Type = Data.Type
     local Paid = CallbackModule.SendCallback("mc-wheel/server/check-cash", Type)
     if Paid then
@@ -71,6 +71,7 @@ RegisterNetEvent('mc-wheel/client/do-spin', function(Data)
 end)
 
 RegisterNetEvent('mc-wheel/client/sync-spin', function(WheelSpeed, WheelSlot, WheelType)
+    if DuiObject == nil then return print('No DUI found for Wheel') end
     SendDuiMessage(DuiObject, json.encode({
         Action = "DoWheel",
         Speed = WheelSpeed,
@@ -99,7 +100,8 @@ function InitWheel(Bool)
             }))
         end
     else
-        WheelDui = nil
+        WheelDui = false
+        exports['mercy-assets']:ReleaseDui('Casino-Wheel')
         RemoveReplaceTexture('vw_prop_vw_luckywheel_01a', 'script_rt_casinowheel')
     end
 end

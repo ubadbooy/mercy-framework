@@ -1,5 +1,4 @@
 Config = Config or {}
-Config.Debug = false
 
 -- DO NOT DELETE DOORS, SET `DISABLED` TO TRUE FOR SPECIFIC DOOR IF YOU WANT TO REMOVE IT.
 
@@ -18,7 +17,10 @@ Config.Doors = {
         Access = {
             Job = { 'police', 'ems', 'judge' },
             CitizenId = {},
-            Business = {}
+            Business = {},
+            -- Item = { -- ITEM EXAMPLE
+            --     'hospital_key',
+            -- }
         },
     },
     {
@@ -2739,7 +2741,7 @@ Config.Doors = {
         Locked = 1,
         IsGate = false,
         CanDetcord = false,
-        canLockpick = true,
+        CanLockpick = true,
         Connected = {},
         Access = {
             Job = { 'police', 'judge' },
@@ -2754,7 +2756,7 @@ Config.Doors = {
         Locked = 1,
         IsGate = false,
         CanDetcord = false,
-        canLockpick = true,
+        CanLockpick = true,
         Connected = {},
         Access = {
             Job = { 'police', 'judge' },
@@ -2768,7 +2770,7 @@ Config.Doors = {
         Model = 'v_ilev_gb_vaubar',
         Locked = 1,
         IsGate = false,
-        canLockpick = true,
+        CanLockpick = true,
         CanDetcord = false,
         Connected = {},
         Access = {
@@ -2784,7 +2786,7 @@ Config.Doors = {
         Locked = 1,
         IsGate = false,
         CanDetcord = false,
-        canLockpick = true,
+        CanLockpick = true,
         Connected = {},
         Access = {
             Job = { 'police', 'judge' },
@@ -2797,7 +2799,7 @@ Config.Doors = {
         Coords = vector3(-2956.04, 484.66, 15.67),
         Model = 'v_ilev_gb_vaubar',
         Locked = 1,
-        canLockpick = true,
+        CanLockpick = true,
         IsGate = false,
         CanDetcord = false,
         Connected = {},
@@ -2813,7 +2815,7 @@ Config.Doors = {
         Model = 'v_ilev_gb_vaubar',
         Locked = 1,
         IsGate = false,
-        canLockpick = true,
+        CanLockpick = true,
         CanDetcord = false,
         Connected = {},
         Access = {
@@ -2934,6 +2936,7 @@ Config.Doors = {
         Locked = 1,
         IsGate = false,
         CanDetcord = false,
+        CanLockpick = true,
         Connected = {},
         Access = {
             Job = { 'police', 'judge' },
@@ -3538,6 +3541,32 @@ Config.Elevators = {
         }
 
     },
+    RECYCLE_CENTRE = {
+        RECYCLE_CENTRE_Inside = {
+            Locked = false,
+            IdName = "RECYCLE_CENTRE_Inside",
+            Name = 'Recycle Center',
+            Desc = 'Lovely recycling, never been so eager to clean up anything before.',
+            Coords = vector4(992.48, -3097.82, -39.0, 270.2),
+            Access = {
+                Job = {},
+                CitizenId = {},
+                Business = {},
+            },
+        },
+        RECYCLE_CENTRE_Outside = {
+            Locked = false,
+            IdName = "RECYCLE_CENTRE_Outside",
+            Name = 'Outside',
+            Desc = 'Where the birds are whistling. 🐦',
+            Coords = vector4(55.81, 6472.03, 31.43, 227.18),
+            Access = {
+                Job = {},
+                CitizenId = {},
+                Business = {},
+            },
+        },
+    },
 }
 
 Config.ElevatorZones = {
@@ -3735,6 +3764,30 @@ Config.ElevatorZones = {
                 Width = 0.5,
                 MinZ = 36.84,
                 MaxZ = 37.29
+            },
+        },
+    },
+    RECYCLE_CENTRE = {
+        [1] = {
+            IdName = "RECYCLE_CENTRE_Inside",
+            Coords = vector3(992.1, -3097.81, -39.0),
+            Data = {
+                Length = 1.2,
+                Width = 0.4,
+                Heading = 0,
+                MinZ = -40.0,
+                MaxZ = -37.8
+            },
+        },
+        [2] = {
+            IdName = "RECYCLE_CENTRE_Outside",
+            Coords = vector3(55.54, 6472.36, 31.43),
+            Data = {
+                Length = 4.8,
+                Width = 0.8,
+                Heading = 315,
+                MinZ = 30.43,
+                MaxZ = 34.43
             },
         },
     },

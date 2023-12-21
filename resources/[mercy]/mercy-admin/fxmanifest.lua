@@ -18,12 +18,14 @@ client_scripts {
     '@mercy-inventory/shared/sh_config.lua',
     '@mercy-inventory/shared/sh_items.lua',
     'client/**/cl_*.lua',
+    'entityhashes/entity.lua',
     'shared/sh_commands.lua',
 }
 
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
     '@mercy-assets/server/sv_errorlog.lua',
+    '@mercy-base/shared/sh_shared.lua',
     'server/sv_*.lua',
 }
 

@@ -367,13 +367,10 @@ function AddReportMessage(ReportId, Message, Time)
 end
 
 function SetInfiniteAmmo(Bool)
-    if next(Config.Weapons) ~= nil then
-        for i = 1, #Config.Weapons do
-            local Weapon = GetHashKey(Config.Weapons[i])
-            SetPedInfiniteAmmo(PlayerPedId(), Bool, Weapon)
-        end
-    else
-        DebugPrint('ammo', 'No weapons found to enable infinite ammo, check config for typos.')
+    local PlayerPed = PlayerPedId()
+    local Weapon = GetSelectedPedWeapon(PlayerPed)
+    if IsWeaponValid(Weapon) then
+        SetAmmoInClip(PlayerPed, Weapon, 9999)
     end
 end
 
@@ -516,6 +513,7 @@ function GetCommands()
     else
         DebugPrint('commands', 'No commands found to filter, check the Config.CommandList for typos.')
     end
+    
     Prom:resolve(FilteredCommands)
     return Citizen.Await(Prom)
 end
@@ -563,6 +561,27 @@ function GetDeletionTypes()
         end)
     end
     return DeletionTypes
+end
+
+function GetPlayerGroups()
+    local Prom = promise:new()
+    local Groups = {}
+    local GroupList = Shared.Groups
+    if GroupList ~= nil then
+        for k, v in pairs(GroupList) do
+            Groups[#Groups + 1] = {
+                Text = k,
+                Label = ' [' .. v .. ']'
+            }
+            table.sort(Groups, function(a, b)
+                return a.Text < b.Text
+            end)
+        end
+    else
+        DebugPrint('groups', 'Could not access Shared.Groups, please check if you have any typo\'s in the config.')
+    end
+    Prom:resolve(Groups)
+    return Citizen.Await(Prom)
 end
 
 function GetModels()
@@ -640,6 +659,29 @@ function GetFarts()
         Prom:resolve(FartList)
     else
         DebugPrint('farts', 'Could not access Config.FartNoises, please check that you don\'t have any typos.')
+    end
+    return Citizen.Await(Prom)
+end
+
+function GetBusinesses()
+    while CallbackModule == nil do
+        Wait(100)
+    end
+    local Prom = promise:new()
+    local BusinessList = {}
+    local Businesses = CallbackModule.SendCallback('mercy-business/server/get-businesses')
+    if Businesses ~= nil then
+        for k, v in pairs(Businesses) do
+            BusinessList[#BusinessList + 1] = {
+                Text = v['Name'],
+            }
+            table.sort(BusinessList, function(a, b)
+                return a.Text < b.Text
+            end)
+        end
+        Prom:resolve(BusinessList)
+    else
+        DebugPrint('businesses', 'Could not find businesses.')
     end
     return Citizen.Await(Prom)
 end

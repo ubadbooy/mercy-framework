@@ -63,7 +63,6 @@ Phone.addNuiListener('TogglePhone', Data => {
 Phone.addNuiListener("SetPhoneNetwork", Data => {
     PhoneData.Network = Data.Id;
 
-    console.log(PhoneData.Network)
     if (PhoneData.Network == 'old_bennys') {
         $('#app-dark').show();
     } else {
@@ -242,6 +241,62 @@ $(document).on("click", ".phone-topbar-network", function(e){
         $.post("https://mercy-phone/Network/Disconnect", JSON.stringify({}))
         $('.phone-topbar-network').css('opacity', '0.5');
     }
+});
+
+$(document).on("click", ".phone-topbar-vpn", function(e){
+    e.preventDefault();
+
+    $.post("https://mercy-phone/Vpn/GetVPNData", JSON.stringify({}), function(Result){
+        if (!Result) {
+            return Notification({
+                Title: "Thor",
+                Message: "No VPN connection found..",
+                Icon: "fas fa-lock",
+                IconBgColor: "rgb(100, 100, 100)",
+                IconColor: "white",
+                Buttons: [],
+                Sticky: false,
+                Duration: 2000,
+            });
+        } else {
+            CreatePhoneInput([
+                {
+                    Name: 'vpn_name',
+                    Label: 'Enter Username',
+                    Icon: 'fas fa-user-secret',
+                    Type: 'input',
+                },
+            ],
+            [
+                {
+                    Name: 'cancel',
+                    Label: "Cancel",
+                    Color: "warning",
+                    Callback: () => { $('.phone-input-wrapper').hide(); }
+                },
+                {
+                    Name: 'submit',
+                    Label: "Submit",
+                    Color: "success",
+                    Callback: (Result) => {
+                        $('.phone-input-wrapper').hide();
+                        SetPhoneLoader(true);
+
+                        $.post("https://mercy-phone/Vpn/SetVPNData", JSON.stringify({
+                            Username: Result
+                        }), function(Success){
+                            SetPhoneLoader(false);
+                            if (Success) {
+                                ShowPhoneCheckmark();
+                            } else {
+                                ShowPhoneError("The request failed.");
+                            }
+                        });
+                    }
+                }
+            ])
+        }
+    });
 });
 
 $(document).on("click", ".phone-bottombar-home", function(e){

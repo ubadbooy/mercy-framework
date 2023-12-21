@@ -1,33 +1,35 @@
 MULTICHARACTER = {
-    pos = vector4(-787.68, 331.0, 188.31, 253.81),
+    pos = vector4(2850.52, -1445.4, 15.7, 324.0),
     peds = {
         -- Deze volgorde klopt, 2,1,3,4
-        { x = -782.65, y = 329.56, z = 187.31, h = 89.69 }, -- 2
-        { x = -781.96, y = 331.35, z = 187.31, h = 271.98 }, -- 1
-        { x = -781.93, y =  326.86, z = 187.31, h = 270.45 }, -- 3
-        { x = -782.64, y = 328.33, z = 187.31, h = 88.45 }, -- 4
+        { x = 2852.155, y = -1439.16, z = 13.92243, h = 180.69 }, 
+        { x = 2853.134, y = -1439.275, z = 13.92243, h = 180.69 }, 
+        { x = 2854.071, y = -1439.58, z = 13.92243, h = 180.69 }, 
+        { x = 2854.931, y = -1440.063, z = 13.92243, h = 140.69 }, 
+        { x = 2855.678, y = -1440.70, z = 13.92243, h = 140.69 }, 
+        { x = 2856.286, y = -1441.481, z = 13.92243, h = 140.69 },
     },
-    playerCoord = vector3(-789.54, 335.35, 187.11),
+    playerCoord = vector3(2870.52, -1445.4, 14.5),
 }
 
-local PedAnims = {
-    [1] = {
-        ['Dict'] = "mp_sleep",
-        ['Anim'] = "sleep_loop",
-    },
-    [2] = {
-        ['Dict'] = "mini@repair",
-        ['Anim'] = "fixing_a_ped",
-    },
-    [3] = {
-        ['Dict'] = "misshair_shop@hair_dressers",
-        ['Anim'] = "keeper_base",
-    },
-    [4] = {
-        ['Dict'] = "mp_sleep",
-        ['Anim'] = "sleep_loop",
-    }
-}
+-- local PedAnims = {
+--     [1] = {
+--         ['Dict'] = "mp_sleep",
+--         ['Anim'] = "sleep_loop",
+--     },
+--     [2] = {
+--         ['Dict'] = "mini@repair",
+--         ['Anim'] = "fixing_a_ped",
+--     },
+--     [3] = {
+--         ['Dict'] = "misshair_shop@hair_dressers",
+--         ['Anim'] = "keeper_base",
+--     },
+--     [4] = {
+--         ['Dict'] = "mp_sleep",
+--         ['Anim'] = "sleep_loop",
+--     }
+-- }
 
 
 local inCharacterMenu = false
@@ -37,36 +39,38 @@ local ped = nil
 
 function SendToCharacterScreen(Bool)
     inCharacterMenu = Bool
-    if inCharacterMenu then
-        TriggerEvent('mercy-weathersync/client/set-default-weather', 21)
-        SetEntityCoords(PlayerPedId(), MULTICHARACTER.playerCoord)
-        FreezeEntityPosition(PlayerPedId(), true)
-
-        DoCharacterCam(true)
-
-        SetEntityCoords(PlayerPedId(), MULTICHARACTER.playerCoord)
-        RequestCollisionAtCoord(MULTICHARACTER.playerCoord.x, MULTICHARACTER.playerCoord.y, MULTICHARACTER.playerCoord.z)
-        while not HasCollisionLoadedAroundEntity(PlayerPedId()) do -- Added as a 'hotfix' for falling through the ground because collision wasn't loaded yet
+    Citizen.SetTimeout(500, function()
+        if inCharacterMenu then
+            TriggerEvent('mercy-weathersync/client/set-default-weather', 21)
             SetEntityCoords(PlayerPedId(), MULTICHARACTER.playerCoord)
-            Citizen.Wait(1)
+            FreezeEntityPosition(PlayerPedId(), true)
+
+            DoCharacterCam(true)
+
+            SetEntityCoords(PlayerPedId(), MULTICHARACTER.playerCoord)
+            RequestCollisionAtCoord(MULTICHARACTER.playerCoord.x, MULTICHARACTER.playerCoord.y, MULTICHARACTER.playerCoord.z)
+            while not HasCollisionLoadedAroundEntity(PlayerPedId()) do -- Added as a 'hotfix' for falling through the ground because collision wasn't loaded yet
+                SetEntityCoords(PlayerPedId(), MULTICHARACTER.playerCoord)
+                Citizen.Wait(1)
+            end
+        
+            BuildCharacterProps()
+        
+            ShutdownLoadingScreen()
+            ShutdownLoadingScreenNui()
+        
+            local Characters = CallbackModule.SendCallback('mercy-ui/server/characters-get')
+            SetNuiFocus(true, true)
+            SendUIMessage('Characters', 'LoadCharacters', {
+                characters = Characters
+            })
+        else
+            DoCharacterCam(false)
+            RemoveCharacterProps()
+            SetNuiFocus(false, false)
+            FreezeEntityPosition(PlayerPedId(), false)
         end
-        
-        BuildCharacterProps()
-        
-        ShutdownLoadingScreen()
-        ShutdownLoadingScreenNui()
-        
-        local Characters = CallbackModule.SendCallback('mercy-ui/server/characters-get')
-        SetNuiFocus(true, true)
-        SendUIMessage('Characters', 'LoadCharacters', {
-            characters = Characters
-        })
-    else
-        DoCharacterCam(false)
-        RemoveCharacterProps()
-        SetNuiFocus(false, false)
-        FreezeEntityPosition(PlayerPedId(), false)
-    end
+    end)
 end
 
 
@@ -74,14 +78,18 @@ function BuildCharacterProps()
     RequestModel(GetHashKey('mp_m_freemode_01'))
     RequestModel(GetHashKey('mp_f_freemode_01'))
 
-    for i = 1, 4, 1 do
+    while CallbackModule == nil do
+        Citizen.Wait(100)
+    end
+
+    for i = 1, 6, 1 do
         local cid = i
-        local Anim = PedAnims[i]
-        -- local prom = promise.new()
+        -- local Anim = PedAnims[i]
         local SkinData = CallbackModule.SendCallback('mercy-ui/server/characters/get-skin', cid)
 
         local Model = SkinData.Model ~= nil and SkinData.Model or GetHashKey("m_character_select")
         local IsCustomSkin = Config.CustomSkins[Model] or false
+
         if IsCustomSkin then 
             local ModelLoaded = FunctionsModule.RequestModel(Model)
             if ModelLoaded then
@@ -90,13 +98,12 @@ function BuildCharacterProps()
                 SetEntityHeading(Ped, MULTICHARACTER.peds[cid].h)
                 -- SetEntityAlpha(Ped, 205, false)
                 
-                -- print('Applying skin to ped', json.encode(SkinData), Ped)
                 TriggerEvent('mercy-clothing/client/load-clothing', SkinData, Ped)
                 
-                if Anim then
-                    FunctionsModule.RequestAnimDict(Anim['Dict'])
-                    TaskPlayAnim(Ped, Anim['Dict'], Anim['Anim'], 2.0, 2.0, -1, 1, 0, false, false, false)
-                end
+                -- if Anim then
+                --     FunctionsModule.RequestAnimDict(Anim['Dict'])
+                --     TaskPlayAnim(Ped, Anim['Dict'], Anim['Anim'], 2.0, 2.0, -1, 1, 0, false, false, false)
+                -- end
 
                 -- FunctionsModule.RequestAnimDict("amb@prop_human_seat_chair_mp@male@generic@base")
                 -- TaskPlayAnim(Ped, "amb@prop_human_seat_chair_mp@male@generic@base", "PROP_HUMAN_SEAT_CHAIR_MP_PLAYER", 2.0, 2.0, -1, 1, 0, false, false, false)
@@ -106,7 +113,7 @@ function BuildCharacterProps()
         else
             local ModelLoaded = FunctionsModule.RequestModel(Model)
             if ModelLoaded then
-                local Ped = CreatePed(4, Model, MULTICHARACTER.peds[cid].x, MULTICHARACTER.peds[cid].y, MULTICHARACTER.peds[cid].z, MULTICHARACTER.peds[cid].h, false, false)
+                local Ped = CreatePed(6, Model, MULTICHARACTER.peds[cid].x, MULTICHARACTER.peds[cid].y, MULTICHARACTER.peds[cid].z, MULTICHARACTER.peds[cid].h, false, false)
                 SetEntityCoordsNoOffset(Ped, MULTICHARACTER.peds[cid].x, MULTICHARACTER.peds[cid].y, MULTICHARACTER.peds[cid].z)
                 SetEntityHeading(Ped, MULTICHARACTER.peds[cid].h)
 
@@ -114,7 +121,6 @@ function BuildCharacterProps()
                     SetEntityAlpha(Ped, 205, false)
                 end
     
-                -- print('Applying skin to ped', json.encode(SkinData), Ped)
                 TriggerEvent('mercy-clothing/client/load-clothing', SkinData, Ped)
 
                 if Anim then
@@ -128,9 +134,8 @@ function BuildCharacterProps()
                 CharacterProps['Ped'..cid] = Ped
             end
         end
-        -- prom:resolve()
-        -- Citizen.Await(prom)
     end
+
     Citizen.Wait(250)
     DoScreenFadeIn(500)
 end
@@ -142,29 +147,11 @@ function DoCharacterCam(Bool)
             MULTICHARACTER.pos.x, MULTICHARACTER.pos.y, 
             MULTICHARACTER.pos.z, -10.0, 
             0.0, MULTICHARACTER.pos.w, 
-            50.0, false, 0
+            33.0, false, 0
         )
         SetCamActive(CharCam, true)
         RenderScriptCams(true, false, 1, true, true, false)
         SetFocusArea(MULTICHARACTER.pos.x, MULTICHARACTER.pos.y, MULTICHARACTER.pos.z, 0.0, 0.0, 0.0)
-        Citizen.CreateThread(function()
-            while DoesCamExist(CharCam) do
-                SetCamParams(CharCam,
-                    MULTICHARACTER.pos.x, MULTICHARACTER.pos.y,
-                    MULTICHARACTER.pos.z, -10.0,
-                    0.0, MULTICHARACTER.pos.w + 2,
-                    50.0, 20000, 0, 0, 0
-                )
-                Citizen.Wait(20250)
-                SetCamParams(CharCam,
-                    MULTICHARACTER.pos.x, MULTICHARACTER.pos.y,
-                    MULTICHARACTER.pos.z, -10.0,
-                    0.0, MULTICHARACTER.pos.w - 2,
-                    50.0, 20000, 0, 0, 0
-                )
-                Citizen.Wait(20250)
-            end
-        end)
     else
         DestroyCam(CharCam, true)
         SetCamActive(CharCam, false)

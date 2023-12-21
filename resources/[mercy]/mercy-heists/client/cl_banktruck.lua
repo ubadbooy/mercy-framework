@@ -11,13 +11,18 @@ RegisterNetEvent('mercy-items/client/used-thermite-charge', function()
                 local Success = DoThermite(Coords)
                 if Success then
                     EventsModule.TriggerServer("mercy-heists/server/banktruck/set-truck-state", NetworkGetNetworkIdFromEntity(Entity), true)
-                    TriggerServerEvent('mercy-ui/server/send-banktruck-rob', FunctionsModule.GetStreetName())
+                    EventsModule.TriggerServer('mercy-ui/server/send-banktruck-rob', FunctionsModule.GetStreetName())
                 end
             end
         end)
     else
         exports['mercy-ui']:Notify("banktruck-error", "You can't do this now..", "error")
     end
+end)
+
+RegisterNetEvent("mercy-heists/client/banktruck/remove-truck", function(NetId)
+    local Vehicle = NetworkGetEntityFromNetworkId(NetId)
+    EntityModule.DeleteEntity(Vehicle)
 end)
 
 RegisterNetEvent("mercy-heists/client/banktruck/setup", function(NetId)

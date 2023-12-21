@@ -87,6 +87,7 @@ Citizen.CreateThread(function()
     end
 end)
 
+-- Eye Target
 Citizen.CreateThread(function()
     while true do
         Citizen.Wait(4)
@@ -128,7 +129,7 @@ Citizen.CreateThread(function()
         Citizen.Wait(4)
         if LocalPlayer.state.LoggedIn then
             Citizen.Wait((1000 * 60) * 10) -- 10 mins
-            EventsModule.TriggerServer('mercy-base/server/receive-salary')
+            EventsModule.TriggerServer('mercy-base/server/receive-paycheck')
         end
     end
 end)
@@ -151,8 +152,10 @@ Citizen.CreateThread(function()
 	while true do
 		Citizen.Wait(4)
 		if LocalPlayer.state.LoggedIn then
-			if PlayerModule.GetPlayerData().MetaData["Food"] <= 1 or PlayerModule.GetPlayerData().MetaData["Water"] <= 1 then
-				if not PlayerModule.GetPlayerData().MetaData["Dead"] then
+            local PlayerData = PlayerModule.GetPlayerData()
+            if PlayerData == nil then return end
+			if PlayerData.MetaData["Food"] <= 1 or PlayerData.MetaData["Water"] <= 1 then
+				if not PlayerData.MetaData["Dead"] then
 					local CurrentHealth = GetEntityHealth(PlayerPedId())
 					SetEntityHealth(PlayerPedId(), CurrentHealth - math.random(5, 10))
 				end

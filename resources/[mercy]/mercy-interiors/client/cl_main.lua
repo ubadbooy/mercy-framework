@@ -99,7 +99,7 @@ function DespawnInterior(ObjectId)
 end
 exports("DespawnInterior", DespawnInterior)
 
-function LoadInteriorProps(Interior, Coords)
+function LoadInteriorProps(InteriorId, Coords)
     if Config.Interiors[InteriorId] == nil or Config.Interiors[InteriorId].Props == nil then return end
     Citizen.CreateThread(function()
         for k, v in pairs(Config.Interiors[InteriorId].Props) do
@@ -145,7 +145,7 @@ RegisterCommand("testInterior", function(Source, Args, Raw)
     local Coords = GetEntityCoords(PlayerPedId())
     Coords = vector3(-1729.55, -2902.29, 13.94 - 35.0)
     local InteriorData = exports['mercy-interiors']:CreateInterior(Args[1], Coords, false)
-    if not InteriorData then returnend
+    if not InteriorData then return end
 
     local Offsets = InteriorData[2]
     Interior = InteriorData[1]
