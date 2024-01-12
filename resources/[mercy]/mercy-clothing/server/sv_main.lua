@@ -30,21 +30,27 @@ Citizen.CreateThread(function()
     end
     -- [ Commands ] --
 
-    CommandsModule.Add("h0", "Take hat off..", {}, false, function(source, args)
-        TriggerClientEvent('mercy-clothing/client/take-off-face-wear', source, 'Hat', nil, nil, true)
-    end)
+   local function addCommand(name, description, animDict, animName, itemType)
+        CommandsModule.Add(name, description, {}, false, function(source, args)
+            TriggerClientEvent('mercy-clothing/client/take-off-face-wear', source, itemType, nil, animName, animDict, nil, nil, true)
+        end)
+    end
 
-    CommandsModule.Add("g0", "Take glasses off..", {}, false, function(source, args)
-        TriggerClientEvent('mercy-clothing/client/take-off-face-wear', source, 'Glasses', nil, nil, true)
-    end)
+    local commands = {
+        { name = "hat",        description = "Take hat off..",       animDict = 'missheist_agency2ahelmet', animName = 'take_off_helmet_stand', itemType = 'Hat' },
+        { name = "glasses",    description = "Take glasses off..",   animDict = 'clothingspecs',           animName = 'take_off',               itemType = 'Glasses' },
+        { name = "mask",       description = "Take mask off..",      animDict = 'missfbi4',                animName = 'takeoff_mask',           itemType = 'Mask' },
+        { name = "vest",       description = "Take vest off..",      animDict = 'clothingtie',             animName = 'try_tie_negative_a',     itemType = 'ArmorVest' },
+        { name = "pants",      description = "Take pants off..",     animDict = 'mini@triathlon',          animName = 'idle_f',                 itemType = 'Pants' },
+        { name = "shirt",      description = "Take shirt off..",     animDict = 'clothingtie',             animName = 'try_tie_negative_a',     itemType = 'Shirts' },
+        { name = "undershirt", description = "Take undershirt off..", animDict = 'clothingtie',             animName = 'try_tie_negative_a',     itemType = 'UnderShirt' },
+        { name = "shoes",      description = "Take shoes off..",     animDict = 'mini@triathlon',          animName = 'idle_f',                 itemType = 'Shoes' },
+        { name = "bag",        description = "Take bag off..",       animDict = 'mini@clothingtie',        animName = 'try_tie_negative_a',     itemType = 'Bag' },
+    }
 
-    CommandsModule.Add("m0", "Take mask off..", {}, false, function(source, args)
-        TriggerClientEvent('mercy-clothing/client/take-off-face-wear', source, 'Mask', nil, nil, true)
-    end)
-
-    CommandsModule.Add("v0", "Take vest off..", {}, false, function(source, args)
-        TriggerClientEvent('mercy-clothing/client/take-off-face-wear', source, 'Vest', nil, nil, true)
-    end)
+    for _, cmd in ipairs(commands) do
+        addCommand(cmd.name, cmd.description, cmd.animDict, cmd.animName, cmd.itemType)
+    end
 
     CommandsModule.Add('addoutfit', 'Put your current outfit in your closet.', {{Name = 'name', Help = 'Outfit Name'}}, false, function(source, args)
         local OutfitName = args[1] ~= nil and args[1] or 'outfit-'..math.random(111111, 999999)
@@ -242,21 +248,16 @@ function DebugLog(Comp, Text)
     print("[DEBUG:"..Comp.."]: "..Text)
 end
 
-RegisterNetEvent("mercy-clothing/server/receive-clothing", function(Type, Prop, Texture)
+RegisterNetEvent("mercy-clothing/server/receive-clothing", function(Type, Data)
     local src = source
     local Player = PlayerModule.GetPlayerBySource(src)
-    if Type == 'Mask' then
-        Player.Functions.AddItem('clothing-mask', 1, false, {Texture = Texture, Prop = Prop}, true)
-    elseif Type == 'Hat' then
-        Player.Functions.AddItem('clothing-hat', 1, false, {Texture = Texture, Prop = Prop}, true)
-    elseif Type == 'Glasses' then
-        Player.Functions.AddItem('clothing-glasses', 1, false, {Texture = Texture, Prop = Prop}, true)
-    end
+    local Item = 'clothing-'..Type
+    Player.Functions.AddItem(Item, 1, false, Data, true)
 end)
 
 RegisterNetEvent("mercy-clothing/server/steal-shoes", function(ServerId, ToShoes)
     local src = source
     local Player = PlayerModule.GetPlayerBySource(src)
     Player.Functions.AddItem("weapon_shoe", 1, false, false, true)
-    TriggerClientEvent('mercy-clothing/client/take-off-face-wear', ServerId, 'Shoes', ToShoes)
+    TriggerClientEvent('mercy-clothing/client/take-off-face-wear', ServerId, 'Shoes', ToShoes, 'idle_f', 'mini@triathlon')
 end)

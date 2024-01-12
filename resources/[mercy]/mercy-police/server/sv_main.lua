@@ -2,7 +2,6 @@ CallbackModule, PlayerModule, FunctionsModule, DatabaseModule, CommandsModule, E
 local PlayerStatus, Evidence, VehicleRecords = {}, {}, {}
 
 local _Ready = false
-print('HUHUHUH', _Ready)
 AddEventHandler('Modules/server/ready', function()
     TriggerEvent('Modules/server/request-dependencies', {
         'Callback',
@@ -125,15 +124,18 @@ Citizen.CreateThread(function()
         TriggerClientEvent('mercy-chat/client/post-message', source, 'DEPARTMENT', Player.PlayerData.Job.Department, 'warning')
     end)
     
-    CommandsModule.Add("setdepartment", "Set your department (LSPD/BCSO/SASP)", {{Name="Department", Help="Department"}}, false, function(source, args)
+    CommandsModule.Add("setdepartment", "Set your department (LSPD/BCSO/SASP)", {{Name="ID", Help="ID"}, {Name="Department", Help="Department"}}, false, function(source, args)
         local Player = PlayerModule.GetPlayerBySource(source)
-        local Department = args[1]
-        if Department ~= nil and Department == 'LSPD' or Department == 'BCSO' or Department == 'SASP' then
-            if Player.PlayerData.Job.Name == 'police' and Player.PlayerData.Job.Duty then
-                Player.Functions.SetDepartment(Department)
-                Player.Functions.Notify('sign-changed', 'Department succesfully changed. You now on the '..Department..'  department.', 'success')
-            else
+	    local Target = PlayerModule.GetPlayerBySource(tonumber(args[1]))
+        local Department = args[2]
+        if Player.PlayerData.Job['HighCommand'] then
+            if Department ~= nil and Department == 'LSPD' or Department == 'BCSO' or Department == 'SASP' then
+                if Player.PlayerData.Job.Name == 'police' and Player.PlayerData.Job.Duty then
+                Target.Functions.SetDepartment(Department)
+                Target.Functions.Notify('sign-changed', 'Department succesfully changed. You now on the '..Department..'  department.', 'success')
+                else
                 Player.Functions.Notify('no-perm', 'No Permission..', 'error')
+                end
             end
         end
     end)
@@ -146,13 +148,13 @@ Citizen.CreateThread(function()
         if Player.PlayerData.Job['HighCommand'] then
             if Player.PlayerData.Job.Name == 'police' and Player.PlayerData.Job.Duty then
                 if Target.PlayerData.Job.Name == 'police' then
-                    if Rank ~= nil and Rank == 'Officer' or Rank == 'Detective' or Rank == 'Corporal' or Rank == 'Sergeant' or Rank == 'Lieutenant' or Rank == 'Captain' or Rank == 'Chief' then
+                    if Rank ~= nil and Config.ValidRanks[Rank] then
                         if Target.PlayerData.Source == source then
                             Player.Functions.SetRank(Rank)
                             Player.Functions.Notify('rank-changed', 'Your rank has been set to '..Rank..'.', 'success')
                         else
                             Target.Functions.SetRank(Rank)
-                            Player.Functions.Notify('rank-changed', 'You set the rank of '..Player.PlayerData.CharInfo.Firstname..' '..Player.PlayerData.CharInfo.Lastname..' to '..Rank..'.', 'success')
+                            Player.Functions.Notify('rank-changed', 'You set the rank of '..Target.PlayerData.CharInfo.Firstname..' '..Target.PlayerData.CharInfo.Lastname..' to '..Rank..'.', 'success')
                             Target.Functions.Notify('rank-changed', 'Your rank has been set to '..Rank..'.', 'success')
                         end
                     else
@@ -700,7 +702,10 @@ end)
 -- Badge
 RegisterNetEvent("mercy-police/server/request-pd-badge", function(Cid, Image)
     local src = source
-    local Player = PlayerModule.GetPlayerByStateId(Cid)
+    local Player = PlayerModule.GetPlayerBySource(src)
+    if not Player then return end
+    local TargetPlayer = PlayerModule.GetPlayerByStateId(Cid)
+    if not TargetPlayer then return Player.Functions.Notify('not-found', 'Target with provided state id was not found..', 'error') end
     local Info = {}
     Info.Name = Player.PlayerData.CharInfo.Firstname .. ' ' .. Player.PlayerData.CharInfo.Lastname
     Info.Rank = Player.PlayerData.Job.Rank
